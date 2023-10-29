@@ -1,0 +1,48 @@
+@import "variables";
+/**********Миксины**********/
+@mixin mainColor($Color){
+  color: $Color;
+}
+@mixin mainBackgroundColor($BackgroundColor){
+  background-color: $BackgroundColor;
+}
+@mixin mainButton($backgroundColor,$textColor){
+  @include mainBackgroundColor($backgroundColor);
+  @include mainColor($textColor);
+}
+/**********Цвета для текста**********/
+.blackText{
+  @include mainColor($main-color-black);
+}
+
+.darkBlueColor{
+  @include mainColor($main-color-dark-blue);
+}
+.BlueColor{
+  @include mainColor($main-color-blue);
+}
+/**********Кнопки**********/
+.greenButton{
+  @include mainButton($main-color-light-green,$main-color-black);
+}
+
+.whiteButton{
+  @include mainButton($main-color-dark-white,$main-color-black);
+}
+
+.redButton{
+  @include mainButton($main-color-light-red,$main-color-black);
+}
+/**********Задний фон**********/
+.grayBackgroundColor{
+  @include mainBackgroundColor($main-color-gray);
+}
+
+.lightGrayBackgroundColor{
+  @include mainBackgroundColor($main-color-light-gray);
+}
+
+.darkWhiteBackgroundColor{
+  @include mainBackgroundColor($main-color-dark-white);
+}
+/*******************************/
