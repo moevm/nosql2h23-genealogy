@@ -29,6 +29,7 @@
       <v-row justify="space-around">
         <v-col>
           <v-btn
+            @click="$router.push('/registration')"
             class="greenButton roundedButton"
             min-width="100px"
           >
