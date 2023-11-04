@@ -1,70 +1,69 @@
 <template>
-    <v-container class="roundContainer grayBackgroundColor mt-auto mb-auto" style="backdrop-filter: blur(100px)">
-      <v-row justify="center">
-        <p class="darkBlueColor AuthorizationTitle">
-          Авторизация
-        </p>
-      </v-row>
-      <v-row justify="center">
-        <v-text-field
-          v-model="login"
-          class="WhiteInput"
-          density="compact"
-          placeholder="Логин"
-          variant="outlined"
-        />
-      </v-row>
-      <v-row justify="center">
-        <v-text-field
-          v-model="password"
-          class="WhiteInput"
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-          :type="visible ? 'text' : 'password'"
-          density="compact"
-          placeholder="Пароль"
-          variant="outlined"
-          @click:append-inner="visible = !visible"
-        />
-      </v-row>
-      <v-row justify="space-around">
-        <v-col>
-          <v-btn
-            @click="$router.push('/registration')"
-            class="greenButton roundedButton"
-            min-width="100px"
-          >
-            Регистрация
-          </v-btn>
-        </v-col>
-        <v-col>
-          <v-btn
-            class="whiteButton roundedButton"
-            min-width="150px"
-          >
-            Войти
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-container class="round-container gray-background-color mt-auto mb-auto" style="backdrop-filter: blur(100px)">
+    <v-row justify="center">
+      <p class="dark-blue-color authorization-title">
+        Авторизация
+      </p>
+    </v-row>
+    <v-row justify="center">
+      <v-text-field
+        v-model="login"
+        class="white-input"
+        density="compact"
+        placeholder="Логин"
+        variant="outlined"
+      />
+    </v-row>
+    <v-row justify="center">
+      <v-text-field
+        v-model="password"
+        class="white-input"
+        :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+        :type="visible ? 'text' : 'password'"
+        density="compact"
+        placeholder="Пароль"
+        variant="outlined"
+        @click:append-inner="visible = !visible"
+      />
+    </v-row>
+    <v-row justify="space-around">
+      <v-col>
+        <v-btn
+          @click="$router.push('/profile')"
+          class="green-button rounded-button"
+          min-width="100px"
+        >
+          Регистрация
+        </v-btn>
+      </v-col>
+      <v-col>
+        <v-btn
+          class="white-button rounded-button"
+          min-width="150px"
+        >
+          Войти
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
+
 </template>
 
 <style lang="scss" scoped>
 @import "../styles/styles";
 
-.roundContainer {
+.round-container {
   border-radius: 40px;
   max-width: 400px;
 }
 
-.roundedButton {
-  border-radius: 10px;
-}
 
-.AuthorizationTitle {
+
+.authorization-title {
   font-size: 24px;
 }
 
-.WhiteInput {
+.white-input {
   :deep(.v-field) {
     background-color: $main-color-dark-white;
   }
@@ -75,9 +74,11 @@
 
 <script>
 import {ref} from "vue";
+import mainNavigation from "@/components/UI/MainNavigation.vue";
 
 export default {
   name: "authorizationPage",
+  components: {mainNavigation},
   setup() {
     const login = ref("")
     const password = ref("")

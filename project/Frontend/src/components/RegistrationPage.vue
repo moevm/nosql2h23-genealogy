@@ -1,14 +1,14 @@
 <template>
-  <v-container class="roundContainer grayBackgroundColor mt-auto mb-auto" style="backdrop-filter: blur(100px)">
+  <v-container class="round-container gray-background-color mt-auto mb-auto" style="backdrop-filter: blur(100px)">
     <v-row justify="center">
-      <p class="darkBlueColor RegistrationTitle">
+      <p class="dark-blue-color registration-title">
         Регистрация
       </p>
     </v-row>
     <v-row justify="center">
       <v-text-field
         v-model="login"
-        class="WhiteInput"
+        class="white-input"
         density="compact"
         placeholder="*Логин"
         variant="outlined"
@@ -17,7 +17,7 @@
     <v-row justify="center">
       <v-text-field
         v-model="password"
-        class="WhiteInput"
+        class="white-input"
         :append-inner-icon="visibleFirst ? 'mdi-eye-off' : 'mdi-eye'"
         :type="visibleFirst ? 'text' : 'password'"
         density="compact"
@@ -29,7 +29,7 @@
     <v-row justify="center" >
       <v-text-field
         v-model="repeatPassword"
-        class="WhiteInput"
+        class="white-input"
         :append-inner-icon="visibleSecond ? 'mdi-eye-off' : 'mdi-eye'"
         :type="visibleSecond ? 'text' : 'password'"
         density="compact"
@@ -44,7 +44,7 @@
     >
       <v-text-field
         v-model="name"
-        class="WhiteInput"
+        class="white-input"
         density="compact"
         placeholder="*Имя"
         variant="outlined"
@@ -53,7 +53,7 @@
     <v-row justify="center">
       <v-text-field
         v-model="surname"
-        class="WhiteInput"
+        class="white-input"
         density="compact"
         placeholder="*Фамилия"
         variant="outlined"
@@ -62,7 +62,7 @@
     <v-row justify="center">
       <v-text-field
         v-model="patronymic"
-        class="WhiteInput"
+        class="white-input"
         density="compact"
         placeholder="Отчество"
         variant="outlined"
@@ -71,7 +71,7 @@
     <v-row justify="space-around">
       <v-col>
         <v-btn
-          class="roundedButton"
+          class="rounded-button"
           @click="$router.push('/')"
           variant="text"
         >
@@ -80,7 +80,7 @@
       </v-col>
       <v-col cols="8">
         <v-btn
-          class="greenButton roundedButton"
+          class="green-button rounded-button"
           min-width="100px"
         >
           Зарегистрироваться
@@ -93,20 +93,20 @@
 <style scoped lang="scss">
 @import "../styles/styles";
 
-.roundContainer {
+.round-container {
   border-radius: 40px;
   max-width: 400px;
 }
 
-.roundedButton {
+.rounded-button {
   border-radius: 10px;
 }
 
-.RegistrationTitle {
+.registration-title {
   font-size: 24px;
 }
 
-.WhiteInput {
+.white-input {
   :deep(.v-field) {
     background-color: $main-color-dark-white;
   }
