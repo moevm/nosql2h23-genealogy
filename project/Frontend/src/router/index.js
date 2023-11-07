@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AuthorizationPage from "@/components/AuthorizationPage.vue";
 import RegistrationPage from "@/components/RegistrationPage.vue";
 import ProfilePage from "@/components/ProfilePage.vue";
+import StatisticsPage from "@/components/StaticsPage.vue"
 
 const routes = [
   {
@@ -16,8 +17,11 @@ const routes = [
   {
     path: '/profile',
     component: ProfilePage
+  },
+  {
+    path: '/statistics',
+    component: StaticsPage
   }
-
 ]
 
 const router = createRouter({
