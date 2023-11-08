@@ -18,7 +18,7 @@
 import MainNavigation from "@/components/UI/MainNavigation.vue";
 
 export default {
-  name: "profilePage",
+  name: "StatisticsPage",
   components: {MainNavigation},
   data(){
     return {

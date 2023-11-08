@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AuthorizationPage from "@/components/AuthorizationPage.vue";
 import RegistrationPage from "@/components/RegistrationPage.vue";
 import ProfilePage from "@/components/ProfilePage.vue";
-import StatisticsPage from "@/components/StaticsPage.vue"
+import StatisticsPage from "@/components/StatisticsPage.vue"
 
 const routes = [
   {
@@ -20,7 +20,7 @@ const routes = [
   },
   {
     path: '/statistics',
-    component: StaticsPage
+    component: StatisticsPage
   }
 ]
 
