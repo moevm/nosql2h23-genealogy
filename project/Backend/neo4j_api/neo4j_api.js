@@ -137,4 +137,23 @@ let takeAccess = async (userId, observers) => { // передаём id поль�
     return "Access was taken";
 }
 
-export default {get_users,getUserByLogin,createUser,getUserData,createNode,deleteNode,takeAccess,giveAccess}
+let updateUser = async (userId,data) =>{ // передача новых данных по пользователю при редактировании профиля
+    let session = driver.session();
+    try {
+            const res = await session.run('MATCH(N) WHERE Id(N) = $userId ' +
+                'SET N = properties($updateUserData)', {
+                userId: userId,
+                updateUserData: data
+            });
+
+    }
+    catch (err) {
+        console.error(err);
+        return 'cannot give access';
+    }
+    return "Access was taken";
+}
+
+
+
+export default {get_users,getUserByLogin,createUser,getUserData,createNode,deleteNode,takeAccess,giveAccess,updateUser,}
