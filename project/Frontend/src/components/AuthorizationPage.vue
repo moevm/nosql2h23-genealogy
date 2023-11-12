@@ -9,6 +9,7 @@
       <v-text-field
         v-model="login"
         class="white-input"
+        :rules="[notEmptyField,LoginFormat]"
         density="compact"
         placeholder="Логин"
         variant="outlined"
@@ -17,6 +18,7 @@
     <v-row justify="center">
       <v-text-field
         v-model="password"
+        :rules="[notEmptyField,PasswordFormat]"
         class="white-input"
         :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
         :type="visible ? 'text' : 'password'"
@@ -40,6 +42,7 @@
         <v-btn
           class="white-button rounded-button"
           min-width="150px"
+          @click="Autorize"
         >
           Войти
         </v-btn>
@@ -83,10 +86,29 @@ export default {
     const login = ref("")
     const password = ref("")
     const visible = ref(false)
+
+    const notEmptyField = (v) => {
+      return !!v || 'Поле должно быть заполнено!'
+    }
+    const LoginFormat = (v) => {
+      const loginRegex = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/
+      return loginRegex.test(v) || 'Логин должен начинаться с латиницы и быть не более 20 знаков(используя только латиницу и цифры)!'
+    }
+    const Autorize = async () =>{
+     const res = fetch('http://localhost:3000')
+    }
+    const PasswordFormat = (v) =>{
+      const passwordRegex = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/
+      return passwordRegex.test(v) || 'Пароль должен содержать строчные и прописные латинские буквы, цифры, спецсимволы. Минимум 8 символов!)!'
+    }
     return {
       login,
       password,
       visible,
+      notEmptyField,
+      LoginFormat,
+      PasswordFormat,
+      Autorize
     }
   }
 }
