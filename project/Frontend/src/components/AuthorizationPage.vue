@@ -48,6 +48,7 @@
         </v-btn>
       </v-col>
     </v-row>
+    <MainSnackBar text="Неверный логин и/или пароль" v-model="uncorrectUserSnack"/>
   </v-container>
 
 </template>
@@ -59,7 +60,6 @@
   border-radius: 40px;
   max-width: 400px;
 }
-
 
 
 .authorization-title {
@@ -78,15 +78,21 @@
 <script>
 import {ref} from "vue";
 import mainNavigation from "@/components/UI/MainNavigation.vue";
+import {useRouter} from 'vue-router'
+import MainSnackBar from "@/components/UI/MainSnackBar.vue";
 
 export default {
   name: "authorizationPage",
-  components: {mainNavigation},
+  components: {
+    mainNavigation,
+    MainSnackBar
+  },
   setup() {
     const login = ref("")
     const password = ref("")
     const visible = ref(false)
-
+    const uncorrectUserSnack = ref(false)
+    const router = useRouter()
     const notEmptyField = (v) => {
       return !!v || 'Поле должно быть заполнено!'
     }
@@ -94,10 +100,21 @@ export default {
       const loginRegex = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/
       return loginRegex.test(v) || 'Логин должен начинаться с латиницы и быть не более 20 знаков(используя только латиницу и цифры)!'
     }
-    const Autorize = async () =>{
-     const res = fetch('http://localhost:3000')
+    const Autorize = async () => {
+      if (LoginFormat(login.value) === true && PasswordFormat(password.value) === true && notEmptyField(login.value) && notEmptyField(password.value)) {
+        const res = await fetch(`http://localhost:3000/get_user/${login.value}/${password.value}`)
+        const data = await res.json()
+        if (data.hasOwnProperty('elementId')) {
+          router.push('/myTree')
+        } else {
+          uncorrectUserSnack.value = true
+        }
+        login.value = ''
+        password.value = ''
+      }
+
     }
-    const PasswordFormat = (v) =>{
+    const PasswordFormat = (v) => {
       const passwordRegex = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/
       return passwordRegex.test(v) || 'Пароль должен содержать строчные и прописные латинские буквы, цифры, спецсимволы. Минимум 8 символов!)!'
     }
@@ -105,6 +122,7 @@ export default {
       login,
       password,
       visible,
+      uncorrectUserSnack,
       notEmptyField,
       LoginFormat,
       PasswordFormat,

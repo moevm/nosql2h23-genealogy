@@ -15,12 +15,12 @@ router.get('/get_user/:login',  async(req, res, next)=> {
     res.status(200).send({ result })
 })
 
-router.get('/get_user_data/:login/:password',  async(req, res, next)=> {
+router.get('/get_user/:login/:password',  async(req, res, next)=> {
     const login = req.params.login;
     const password = req.params.password;
-    let result = await neo4j_api.getUserData(login,password);
-    //console.log("RESULT IS", result)
-    res.status(200).send({ result })
+    let result = await neo4j_api.getUserByLoginPassword(login,password);
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
 })
 
 router.post('/create_user', async(req, res, next) => {
