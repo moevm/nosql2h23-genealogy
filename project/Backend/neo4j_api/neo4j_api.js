@@ -27,7 +27,15 @@ let getUserByLogin = async (login) => { //получаем пользовате�
     return (!res ? {} : res.records[0]._fields[0]);
 
 }
-
+let getUserByLoginPassword = async (login,password) => {
+    let session = driver.session();
+    const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
+        login: login,
+        password: password
+    });
+    session.close();
+    return res.records[0]?._fields[0] || {};
+}
 let getUserData = async (login,password) => { // получение всех связей с узлом пользователя
     let session = driver.session();
     const res = await session.run('MATCH(N)-[r]->(e) WHERE N.login = $login AND N.password = $password\n' +
@@ -156,4 +164,4 @@ let updateUser = async (userId,data) =>{ // передача новых данн
 
 
 
-export default {get_users,getUserByLogin,createUser,getUserData,createNode,deleteNode,takeAccess,giveAccess,updateUser,}
+export default {get_users,getUserByLogin,createUser,getUserData,createNode,deleteNode,takeAccess,giveAccess,updateUser,getUserByLoginPassword}
