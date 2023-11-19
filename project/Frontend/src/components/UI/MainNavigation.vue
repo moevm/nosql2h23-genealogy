@@ -24,6 +24,7 @@
       value="otherTrees"
       variant="text"
       class="blue-color"
+      @click="$router.push('/recommendation')"
     >
       Другие родословные
     </v-btn>
@@ -31,6 +32,7 @@
       value="Statistic"
       variant="text"
       class="blue-color"
+      @click="$router.push('/statistics')"
     >
       Статистика
     </v-btn>
