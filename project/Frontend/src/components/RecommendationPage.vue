@@ -9,14 +9,14 @@
         single-line
         variant="outlined"
         hide-details
-      ></v-text-field>
+      />
     </template>
 
     <v-data-table
       :headers="headers"
-      :items="desserts"
+      :items="hardcoded"
       :search="search"
-    ></v-data-table>
+    />
   </v-card>
 </template>
 
@@ -25,16 +25,17 @@
 </style>
 
 <script>
-import MainNavigation from "@/components/UI/MainNavigation.vue";
+  import { ref } from 'vue'
+  import MainNavigation from "@/components/UI/MainNavigation.vue";
 
-export default {
-  name: "RecommendationPage",
-  components: {MainNavigation},
-  
-  data() {
-    return {
-      search: '',
-      headers: [
+  var headers = ref([])
+  var hardcoded = ref([])
+  var search = ref('')
+
+  export default {
+    name: 'RecommendationPage',
+    setup() {
+      headers = [
         { title: 'ФИО', align: 'center', key: 'full_name' },
         {
           title: 'Количество узлов в дереве',
@@ -51,8 +52,9 @@ export default {
           align: 'center',
           key: 'amount_in_generation',
         },
-      ],
-      desserts: [
+      ]
+
+      hardcoded = [
         {
           full_name: 'Алексей Алексеевич Алексеев',
           amount_in_tree: 20,
@@ -77,8 +79,11 @@ export default {
           amount_of_matches: 5,
           amount_in_generation: 2,
         },
-      ],
-    }
-  },
-}
-</script>
+      ]
+      return {
+        headers,
+        hardcoded,
+        search,
+      }
+    },
+  }
