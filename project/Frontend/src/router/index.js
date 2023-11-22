@@ -4,6 +4,7 @@ import AuthorizationPage from "@/components/AuthorizationPage.vue";
 import RegistrationPage from "@/components/RegistrationPage.vue";
 import ProfilePage from "@/components/ProfilePage.vue";
 import StatisticsPage from "@/components/StatisticsPage.vue"
+import RecommendationPage from "@/components/RecommendationPage.vue"
 
 const routes = [
   {
@@ -21,6 +22,10 @@ const routes = [
   {
     path: '/statistics',
     component: StatisticsPage
+  },
+  {
+    path: '/recommendation',
+    component: RecommendationPage
   }
 ]
 
