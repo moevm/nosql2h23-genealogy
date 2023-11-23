@@ -80,7 +80,7 @@ import {ref} from "vue";
 import mainNavigation from "@/components/UI/MainNavigation.vue";
 import {useRouter} from 'vue-router'
 import MainSnackBar from "@/components/UI/MainSnackBar.vue";
-
+import {useAppStore} from "@/store/app";
 export default {
   name: "authorizationPage",
   components: {
@@ -88,6 +88,7 @@ export default {
     MainSnackBar
   },
   setup() {
+    const store = useAppStore()
     const login = ref("")
     const password = ref("")
     const visible = ref(false)
@@ -105,6 +106,7 @@ export default {
         const res = await fetch(`http://localhost:3000/get_user/${login.value}/${password.value}`)
         const data = await res.json()
         if (data.hasOwnProperty('elementId')) {
+          store.userId = data.elementId
           router.push('/myTree')
         } else {
           uncorrectUserSnack.value = true
