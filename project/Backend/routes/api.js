@@ -26,7 +26,7 @@ router.get('/get_user/:login/:password',  async(req, res, next)=> {
 router.get('/get_tree/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let result = await neo4j_api.getTreeByUserId(id);
-    //console.log("RESULT IS", result)
+    console.log("RESULT IS", result)
     res.status(200).send(result)
 })
 
