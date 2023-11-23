@@ -46,7 +46,7 @@
     >
       <template v-slot:item="row">
         <tr>
-          <td>{{ generateInfo(tableDict.get(row.item).info.properties) }}</td>
+          <td>{{ generateInfo(tableDict.get(row.item).information.properties) }}</td>
           <td>{{ tableDict.get(row.item).relationship }}</td>
           <td>
               <v-btn>
@@ -69,7 +69,7 @@
 import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
-
+import {generateInfo} from "../../methods/informationCreator"
 export default {
   name: 'treePage',
   components: {
@@ -97,13 +97,13 @@ export default {
         const end = relative.startNodeElementId === relation.end.elementId ? relation.start : relation.end
         if (!table.has(start.elementId)) {
           table.set(start.elementId, {
-            info: start,
+            information: start,
             relationship: []
           })
         }
         if (!table.has(end.elementId)) {
           table.set(end.elementId, {
-            info: end,
+            information: end,
             relationship: []
           })
         }
@@ -134,7 +134,7 @@ export default {
       return table
     }
 
-    const generateInfo = (node) => {
+    /*const generateInfo = (node) => {
       return node.name + ' ' +
         node?.patronymic + ' ' + node.surname + ' ' +
         node.gender + ' ' +
@@ -145,7 +145,7 @@ export default {
       return (+date.day.low < 10 ? `0${date.day.low}.` : `${date.day.low}.`) +
         (+date.month.low < 10 ? `0${date.month.low}.` : ` ${date.month.low}.`) +
         date.year.low
-    }
+    }*/
     const headers = [
       {title: 'Информация', align: 'center', key: 'information'},
       {title: 'Родство', align: 'center', key: 'relationship'},

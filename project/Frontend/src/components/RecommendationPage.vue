@@ -34,6 +34,7 @@
 
   export default {
     name: 'RecommendationPage',
+    components: {MainNavigation},
     setup() {
       headers = [
         { title: 'ФИО', align: 'center', key: 'full_name' },

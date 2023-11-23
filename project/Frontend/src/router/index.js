@@ -6,6 +6,7 @@ import ProfilePage from "@/components/ProfilePage.vue";
 import StatisticsPage from "@/components/StatisticsPage.vue"
 import RecommendationPage from "@/components/RecommendationPage.vue";
 import TreePage from "@/components/TreePage.vue";
+import VisualizeTreePage from "@/components/VisualizeTreePage.vue";
 
 const routes = [
   {
@@ -31,6 +32,10 @@ const routes = [
   {
     path: '/myTree',
     component: TreePage
+  },
+  {
+    path: '/VisualizeTree',
+    component: VisualizeTreePage,
   }
 ]
 
