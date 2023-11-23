@@ -16,6 +16,7 @@
       value="myTree"
       variant="text"
       class="blue-color"
+      @click="$router.push('/myTree')"
     >
       Моё дерево
     </v-btn>

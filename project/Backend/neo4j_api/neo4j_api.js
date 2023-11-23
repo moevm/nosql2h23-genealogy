@@ -162,6 +162,41 @@ let updateUser = async (userId,data) =>{ // передача новых данн
     return "Access was taken";
 }
 
+let getTreeByUserId = async (userId) =>{ // передача новых данных по пользователю при редактировании профиля
+    let session = driver.session();
+
+    try {
+        const res = await session.run('MATCH path = (N)-[*]-(other) ' +
+        'WHERE elementid(N) = $userId AND NOT type(relationships(path)[0]) = "HAVE_PRIVACY" ' +
+        'WITH relationships(path) AS rels, nodes(path) AS nodes ' +
+        'UNWIND range(0, size(rels) - 1) AS idx ' +
+        'WITH rels[idx] AS rel, nodes[idx] AS start, nodes[idx+1] AS end ' +
+        'WHERE NOT type(rel) = "HAVE_PRIVACY" AND id(start) < id(end) ' +
+        'WITH start, rel, end ' +
+        'ORDER BY start ' +
+        'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result', {
+            userId: userId
+        });
+        return res.records[0]._fields[0]
+    }
+    catch (err) {
+        console.error(err);
+        return 'cannot give access';
+    }
+}
 
 
-export default {get_users,getUserByLogin,createUser,getUserData,createNode,deleteNode,takeAccess,giveAccess,updateUser,getUserByLoginPassword}
+
+export default {
+    get_users,
+    getUserByLogin,
+    createUser,
+    getUserData,
+    createNode,
+    deleteNode,
+    takeAccess,
+    giveAccess,
+    updateUser,
+    getUserByLoginPassword,
+    getTreeByUserId
+}

@@ -4,7 +4,8 @@ import AuthorizationPage from "@/components/AuthorizationPage.vue";
 import RegistrationPage from "@/components/RegistrationPage.vue";
 import ProfilePage from "@/components/ProfilePage.vue";
 import StatisticsPage from "@/components/StatisticsPage.vue"
-import RecommendationPage from "@/components/RecommendationPage.vue"
+import RecommendationPage from "@/components/RecommendationPage.vue";
+import TreePage from "@/components/TreePage.vue";
 
 const routes = [
   {
@@ -26,6 +27,10 @@ const routes = [
   {
     path: '/recommendation',
     component: RecommendationPage
+  },
+  {
+    path: '/myTree',
+    component: TreePage
   }
 ]
 
