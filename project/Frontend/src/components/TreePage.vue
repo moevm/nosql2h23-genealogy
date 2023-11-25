@@ -1,10 +1,11 @@
 <template>
-  <MainNavigation/>
+  <MainNavigation/> 
   <v-container class="mt-10">
     <v-row>
       <v-btn
         class="green-button rounded-button"
         min-width="200px"
+        @click="$router.push('/addNode')"
       >
         Добавить
       </v-btn>
