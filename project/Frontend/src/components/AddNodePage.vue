@@ -26,9 +26,10 @@
           </v-row>
           <v-row>
             <v-btn
+              value="myTree"
               min-width="350px"
               class="white-button mt-5 ml-5"
-              @click="changeFlag = !changeFlag"
+              @click="$router.push('/myTree')"
             >
               Назад
             </v-btn>
@@ -40,7 +41,7 @@
         cols="4"
         offset="1"
       >
-        <v-row class="mt-5">
+        <!-- <v-row class="mt-5">
           <v-col>
             <p class="blue-color">
               Имя
@@ -65,8 +66,8 @@
               {{ surname }}
             </p>
           </v-col>
-        </v-row>
-        <v-row>
+        </v-row> -->
+        <!-- <v-row>
           <v-col>
             <p class="blue-color">
               Отчество
@@ -77,8 +78,8 @@
               {{ patronymic }}
             </p>
           </v-col>
-        </v-row>
-        <v-row>
+        </v-row> -->
+        <!-- <v-row>
           <v-col>
             <p class="blue-color">
               Дата рождения
@@ -89,8 +90,8 @@
               {{ date }}
             </p>
           </v-col>
-        </v-row>
-        <v-row>
+        </v-row> -->
+        <!-- <v-row>
           <v-col>
             <p class="blue-color">
               Пол
@@ -101,8 +102,8 @@
               {{ gender }}
             </p>
           </v-col>
-        </v-row>
-        <v-row>
+        </v-row> -->
+        <!-- <v-row>
           <v-col>
             <p class="blue-color">
               Логин
@@ -113,8 +114,8 @@
               {{ login }}
             </p>
           </v-col>
-        </v-row>
-        <v-row>
+        </v-row> -->
+        <!-- <v-row>
           <v-col>
             <p class="blue-color">
               Пароль
@@ -125,7 +126,7 @@
               {{ password }}
             </p>
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
       <v-col
         v-else
@@ -185,8 +186,25 @@
           </v-col>
           <v-col>
             <v-text-field
-              v-model="date"
-              @change="console.log(date)"
+              v-model="dateOfBirth"
+              @change="console.log(dateOfBirth)"
+              class="dark-white-input"
+              density="compact"
+              variant="outlined"
+              type="date"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <p class="ml-15 blue-color">
+              Дата смерти
+            </p>
+          </v-col>
+          <v-col>
+            <v-text-field
+              v-model="dateOfDeath"
+              @change="console.log(dateOfDeath)"
               class="dark-white-input"
               density="compact"
               variant="outlined"
@@ -214,35 +232,13 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col>
-            <p class="ml-15 blue-color">
-              Логин
-            </p>
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="login"
-              density="compact"
-              class="dark-white-input"
-              variant="outlined"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <p class="ml-15 blue-color">
-              Пароль
-            </p>
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="password"
-              class="dark-white-input"
-              density="compact"
-              variant="outlined"
-            />
-          </v-col>
-        </v-row>
+            <v-btn
+              min-width="350px"
+              class="green-button mt-7 ml-5"
+            >
+              Добавить
+            </v-btn>
+          </v-row>
       </v-col>
     </v-row>
   </v-container>
@@ -260,23 +256,21 @@ export default {
   name: "addNodePage",
   components: {MainNavigation},
   setup() {
-    const changeFlag = ref(false)
-    const name = ref("Иван")
-    const surname = ref("Иванов")
-    const patronymic = ref("Иванович")
-    const date = ref("2000-01-01")
-    const gender = ref("М")
-    const login = ref("IvanIvan@gmail.com")
-    const password = ref("********")
+    const changeFlag = ref(true)
+    const name = ref("")
+    const surname = ref("")
+    const patronymic = ref("")
+    const dateOfBirth = ref("")
+    const dateOfDeath = ref("")
+    const gender = ref("")
     return {
       changeFlag,
       name,
       surname,
       patronymic,
-      date,
       gender,
-      login,
-      password
+      dateOfBirth,
+      dateOfDeath
     }
   }
 }

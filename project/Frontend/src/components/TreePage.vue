@@ -3,6 +3,7 @@
   <v-container class="mt-10">
     <v-row>
       <v-btn
+        value="addNode"
         class="green-button rounded-button"
         min-width="200px"
         @click="$router.push('/addNode')"
