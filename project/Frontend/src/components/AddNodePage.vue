@@ -20,6 +20,7 @@
             <v-btn
               min-width="350px"
               class="green-button mt-7 ml-5"
+              @click="addNodeInDB"
             >
               Сохранить
             </v-btn>
@@ -41,92 +42,6 @@
         cols="4"
         offset="1"
       >
-        <!-- <v-row class="mt-5">
-          <v-col>
-            <p class="blue-color">
-              Имя
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ name }}
-            </p>
-
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <p class="blue-color">
-              Фамилия
-            </p>
-
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ surname }}
-            </p>
-          </v-col>
-        </v-row> -->
-        <!-- <v-row>
-          <v-col>
-            <p class="blue-color">
-              Отчество
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ patronymic }}
-            </p>
-          </v-col>
-        </v-row> -->
-        <!-- <v-row>
-          <v-col>
-            <p class="blue-color">
-              Дата рождения
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ date }}
-            </p>
-          </v-col>
-        </v-row> -->
-        <!-- <v-row>
-          <v-col>
-            <p class="blue-color">
-              Пол
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ gender }}
-            </p>
-          </v-col>
-        </v-row> -->
-        <!-- <v-row>
-          <v-col>
-            <p class="blue-color">
-              Логин
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ login }}
-            </p>
-          </v-col>
-        </v-row> -->
-        <!-- <v-row>
-          <v-col>
-            <p class="blue-color">
-              Пароль
-            </p>
-          </v-col>
-          <v-col>
-            <p class="blue-color">
-              {{ password }}
-            </p>
-          </v-col>
-        </v-row> -->
       </v-col>
       <v-col
         v-else
@@ -252,10 +167,34 @@
 import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {ref} from "vue";
 
+
 export default {
   name: "addNodePage",
   components: {MainNavigation},
   setup() {
+    const addNodeInDB = async () =>{
+      const dataNode ={
+        UserId:'4:3a60676e-a8e6-488e-8033-bd8204f859b7:5',
+        name: name,
+        surname: surname,
+        patronymic: patronymic,
+        dateOfBirth: dateOfBirth,
+        dateOfDeath: dateOfDeath,
+        gender: gender,
+        generation: '1'
+      };
+      let res = await fetch(`http://localhost:3000/create_node`,{
+      method: 'POST',
+      // headers: {
+      //   'Content-Type': 'application/json'
+      // },
+        body: JSON.stringify(dataNode)
+      });
+      //${JSON.stringify(dataNode)}`)
+
+      console.log("Gпроверка на действие функциилалалалалла")
+    }
+
     const changeFlag = ref(true)
     const name = ref("")
     const surname = ref("")
@@ -270,7 +209,8 @@ export default {
       patronymic,
       gender,
       dateOfBirth,
-      dateOfDeath
+      dateOfDeath,
+      addNodeInDB
     }
   }
 }

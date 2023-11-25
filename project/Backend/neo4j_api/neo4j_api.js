@@ -1,7 +1,7 @@
 import neo4j from 'neo4j-driver'
 import {creds} from '../config/credentials.js'
 
-const driver = neo4j.driver("bolt://0.0.0.0:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
+const driver = neo4j.driver("bolt://127.0.0.1:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
 let get_users = async () => { // просим количество user
     let session = driver.session();
@@ -64,25 +64,34 @@ let createUser = async (user) => { // создаём пользователя
     return res;
 }
 
-let createNode = async (node,relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let createNode = async (node)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
-
+    let primitiveNode = {
+        UserId: String(node.UserId),
+        name: String(node.name),
+        surname: String(node.surname),
+        patronymic: String(node.patronymic),
+        dateOfBirth: String(node.dateOfBirth),
+        dateOfDeath: String(node.dateOfDeath),
+        gender: String(node.gender),
+        generation: Number(node.generation)
+      };
     try {
         const id = await session.run('CREATE(node:Relative $node)\n' +
             'RETURN node.id', {
-            node: node
+            node: primitiveNode
         });
-        for (const relative of relationships) {
-            let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
-                'CREATE(N)-[m:$relativeEdgeTo]->(r) WHERE Id(r) = $relativeId\n' +
-                'CREATE(r)-[q:$relativeEdgeFrom]->(N)', {
-                id: id,
-                relativeEdgeTo: relative.relationshipTo,
-                relativeEdgeFrom: relative.relationshipFrom,
-                relativeId: relative.id
-            });
-        }
+        // for (const relative of relationships) {
+        //     let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
+        //         'CREATE(N)-[m:$relativeEdgeTo]->(r) WHERE Id(r) = $relativeId\n' +
+        //         'CREATE(r)-[q:$relativeEdgeFrom]->(N)', {
+        //         id: id,
+        //         relativeEdgeTo: relative.relationshipTo,
+        //         relativeEdgeFrom: relative.relationshipFrom,
+        //         relativeId: relative.id
+        //     });
+        // }
     }
     catch (err) {
         console.error(err);

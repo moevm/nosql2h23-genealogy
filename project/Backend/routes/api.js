@@ -45,4 +45,12 @@ router.post('/neo4j_post', async(req, res, next) => {
    // let string = await neo4j_api.set_user();
     res.status(200).send("User named " + " created")
 })
+
+router.post('/create_node', async(req, res, next) => {
+    let node = req.body;
+    await neo4j_api.createNode(node);
+    // let string = await neo4j_api.set_user();
+    res.status(200).send("Node created")
+})
+
 export default router
