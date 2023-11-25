@@ -67,21 +67,20 @@ let createUser = async (user) => { // создаём пользователя
 let createNode = async (node)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
-    let primitiveNode = {
-        UserId: String(node.UserId),
-        name: String(node.name),
-        surname: String(node.surname),
-        patronymic: String(node.patronymic),
-        dateOfBirth: String(node.dateOfBirth),
-        dateOfDeath: String(node.dateOfDeath),
-        gender: String(node.gender),
-        generation: Number(node.generation)
-      };
+      //console.log(node)
     try {
-        const id = await session.run('CREATE(node:Relative $node)\n' +
-            'RETURN node.id', {
-            node: primitiveNode
-        });
+        const id = await session.run('CREATE(node:Person{ \n' +
+            'UserId: \''+node.UserId+'\',\n'+
+            'name: \''+node.name._value+'\',\n'+
+            'surname: \''+node.surname._value+'\',\n'+
+            'patronymic: \''+node.patronymic._value+'\',\n'+
+            'dateOfBirth: \''+node.dateOfBirth._value+'\',\n'+
+            'dateOfDeath: \''+node.dateOfDeath._value+'\',\n'+
+            'gender: \''+node.gender._value+'\',\n'+
+            'generation: \''+ node.generation+'\'\n})'+'\n'+
+            'RETURN ID(node) AS nodeId;'
+            );
+        
         // for (const relative of relationships) {
         //     let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
         //         'CREATE(N)-[m:$relativeEdgeTo]->(r) WHERE Id(r) = $relativeId\n' +
@@ -97,7 +96,7 @@ let createNode = async (node)=>{//},relationships) =>{ // создать узе�
         console.error(err);
         return 'error';
     }
-    return 'success added Node by Id: ' + id;
+    return 'success added Node' ;
 }
 
 let deleteNode = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)

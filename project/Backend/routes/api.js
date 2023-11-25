@@ -48,6 +48,7 @@ router.post('/neo4j_post', async(req, res, next) => {
 
 router.post('/create_node', async(req, res, next) => {
     let node = req.body;
+    //console.log("Gпроверка на действие функциилалалалалла2")
     await neo4j_api.createNode(node);
     // let string = await neo4j_api.set_user();
     res.status(200).send("Node created")

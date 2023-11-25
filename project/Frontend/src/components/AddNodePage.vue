@@ -183,18 +183,16 @@ export default {
         gender: gender,
         generation: '1'
       };
+      //console.log("Gпроверка на действие функциилалалалалла1")
       let res = await fetch(`http://localhost:3000/create_node`,{
       method: 'POST',
-      // headers: {
-      //   'Content-Type': 'application/json'
-      // },
+      headers: {
+        'Content-Type': 'application/json'
+      },
         body: JSON.stringify(dataNode)
       });
-      //${JSON.stringify(dataNode)}`)
-
-      console.log("Gпроверка на действие функциилалалалалла")
+      //console.log("Gпроверка на действие функциилалалалалла")
     }
-
     const changeFlag = ref(true)
     const name = ref("")
     const surname = ref("")
