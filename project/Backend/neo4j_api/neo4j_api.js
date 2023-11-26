@@ -92,6 +92,39 @@ let createNode = async (node)=>{//},relationships) =>{ // создать узе�
     return 'success added Node' ;
 }
 
+let createRelation = async (relationships)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+
+    let session = driver.session();
+    //console.log(relationships)
+    try {        
+        let response = await session.run('MATCH(n1), (n2)\n'+
+        'WHERE ID(n1) = $id AND ID(n2) = $relativeId\n' +
+        'CREATE(n1)-[:'+relationships.relationshipTo+']->(n2)\n' +
+        'CREATE(n2)-[:'+relationships.relationshipFrom+']->(n1)', {
+            id: Number(relationships.id),
+            // relativeEdgeTo: relationships.relationshipTo,
+            // relativeEdgeFrom: relationships.relationshipFrom,
+            relativeId: Number(relationships.relativeId)
+        });
+        
+        // 'MATCH(n1), (n2)\n'+
+        // 'WHERE ID(n1) = $id AND ID(n2) = $relativeId\n' +
+        // 'CREATE(n1)-[:'+relationships.relationshipTo+']->(n2)\n' +
+        // 'CREATE(n2)-[:'+relationships.relationshipFrom+']->(n1)'
+
+        // 'MATCH(N),(r) WHERE Id(N) = $id AND Id(r) = $relativeId\n' +
+        // 'CREATE(N)-[m:'+relationships.relationshipTo+']->(r) \n' +
+        // 'CREATE(r)-[q:'+relationships.relationshipFrom+']->(N)'
+        
+    }
+    catch (err) {
+        console.error(err);
+        return 'error';
+    }
+    return 'success added Node' ;
+}
+
+
 let deleteNode = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
@@ -194,6 +227,7 @@ export default {
     createUser,
     getUserData,
     createNode,
+    createRelation,
     deleteNode,
     takeAccess,
     giveAccess,

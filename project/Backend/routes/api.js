@@ -54,4 +54,12 @@ router.post('/create_node', async(req, res, next) => {
     res.status(200).send("Node created")
 })
 
+router.post('/create_relation', async(req, res, next) => {
+    let relationships = req.body;
+    // console.log("Gпроверка на действие функциилалалалалла2")
+    await neo4j_api.createRelation(relationships);
+    // let string = await neo4j_api.set_user();
+    res.status(200).send("Relation created")
+})
+
 export default router

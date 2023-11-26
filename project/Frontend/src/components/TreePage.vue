@@ -85,9 +85,11 @@ export default {
     const treeInfo = ref([])
     const tableDict = ref(new Map())
     onMounted(async () => {
+      console.log("Gпроверка на действие функциилалалалалла2")
       const res = await fetch(`http://localhost:3000/get_tree/${store.userId}`)
       treeInfo.value = await res.json()
       tableDict.value = generateTableInfo(treeInfo.value)
+      console.log("Gпроверка на действие функциилалалалалла3")
     })
 
     const generateTableInfo = (data) => {
@@ -136,7 +138,7 @@ export default {
       return table
     }
 
-    /*const generateInfo = (node) => {
+    const generateInfo = (node) => {
       return node.name + ' ' +
         node?.patronymic + ' ' + node.surname + ' ' +
         node.gender + ' ' +
@@ -147,7 +149,7 @@ export default {
       return (+date.day.low < 10 ? `0${date.day.low}.` : `${date.day.low}.`) +
         (+date.month.low < 10 ? `0${date.month.low}.` : ` ${date.month.low}.`) +
         date.year.low
-    }*/
+    }
     const headers = [
       {title: 'Информация', align: 'center', key: 'information'},
       {title: 'Родство', align: 'center', key: 'relationship'},
@@ -188,3 +190,5 @@ export default {
   }
 }
 </script>
+
+

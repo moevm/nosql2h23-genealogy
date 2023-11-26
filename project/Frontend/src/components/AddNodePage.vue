@@ -146,10 +146,34 @@
 
           </v-col>
         </v-row>
+        
+        <v-row>
+          <p class="ml-15 blue-color">
+              Родство
+            </p>
+        </v-row>
+        <v-row>
+    <!-- Первый выпадающий список -->
+          <v-select
+            v-model="selectedItem1"
+            :items="items1"
+          >
+        </v-select>
+
+    <!-- Второй выпадающий список -->
+          <v-select
+            v-model="selectedItem2"
+            :items="items2"
+          >
+        </v-select>
+        </v-row>
+
+
         <v-row>
             <v-btn
               min-width="350px"
               class="green-button mt-7 ml-5"
+              @click="addRelationInDB"
             >
               Добавить
             </v-btn>
@@ -192,6 +216,22 @@ export default {
       });
       //console.log("Gпроверка на действие функциилалалалалла")
     }
+    const addRelationInDB = async () =>{
+      const relationships ={
+        id: '0',
+        relationshipTo: 'FATHER',
+        relationshipFrom:'SON',
+        relativeId: '1'
+      }
+      //console.log("Gпроверка на действие функциилалалалалла")
+      let res = await fetch(`http://localhost:3000/create_relation`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+        body: JSON.stringify(relationships)
+      });
+    }
     const changeFlag = ref(true)
     const name = ref("")
     const surname = ref("")
@@ -199,6 +239,10 @@ export default {
     const dateOfBirth = ref("")
     const dateOfDeath = ref("")
     const gender = ref("")
+    let selectedItem1 = ref("")
+    let selectedItem2 = ref("")
+    const items1 = ['Значение 1', 'Значение 2', 'Значение 3']
+    const items2 = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать','Сын\\Дочь' ]
     return {
       changeFlag,
       name,
@@ -207,7 +251,12 @@ export default {
       gender,
       dateOfBirth,
       dateOfDeath,
-      addNodeInDB
+      selectedItem1,
+      selectedItem2,
+      items1,
+      items2,
+      addNodeInDB,
+      addRelationInDB
     }
   }
 }
