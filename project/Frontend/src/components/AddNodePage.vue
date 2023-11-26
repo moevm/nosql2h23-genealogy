@@ -175,15 +175,14 @@ export default {
     const addNodeInDB = async () =>{
       const dataNode ={
         UserId:'4:3a60676e-a8e6-488e-8033-bd8204f859b7:5',
-        name: name,
-        surname: surname,
-        patronymic: patronymic,
-        dateOfBirth: dateOfBirth,
-        dateOfDeath: dateOfDeath,
-        gender: gender,
+        name: name.value,
+        surname: surname.value,
+        patronymic: patronymic.value,
+        dateOfBirth: dateOfBirth.value,
+        dateOfDeath: dateOfDeath.value,
+        gender: gender.value,
         generation: '1'
       };
-      //console.log("Gпроверка на действие функциилалалалалла1")
       let res = await fetch(`http://localhost:3000/create_node`,{
       method: 'POST',
       headers: {
