@@ -69,17 +69,10 @@ let createNode = async (node)=>{//},relationships) =>{ // создать узе�
     let session = driver.session();
       //console.log(node)
     try {
-        const id = await session.run('CREATE(node:Person{ \n' +
-            'UserId: \''+node.UserId+'\',\n'+
-            'name: \''+node.name._value+'\',\n'+
-            'surname: \''+node.surname._value+'\',\n'+
-            'patronymic: \''+node.patronymic._value+'\',\n'+
-            'dateOfBirth: \''+node.dateOfBirth._value+'\',\n'+
-            'dateOfDeath: \''+node.dateOfDeath._value+'\',\n'+
-            'gender: \''+node.gender._value+'\',\n'+
-            'generation: \''+ node.generation+'\'\n})'+'\n'+
-            'RETURN ID(node) AS nodeId;'
-            );
+        const id = await session.run('CREATE(node:Relative $node)',{
+            node: node,
+        }
+        );
         
         // for (const relative of relationships) {
         //     let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
