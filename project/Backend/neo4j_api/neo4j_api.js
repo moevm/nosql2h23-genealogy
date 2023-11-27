@@ -1,7 +1,7 @@
 import neo4j from 'neo4j-driver'
 import {creds} from '../config/credentials.js'
 
-const driver = neo4j.driver("bolt://127.0.0.1:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
+const driver = neo4j.driver("bolt://0.0.0.0:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
 let get_users = async () => { // просим количество user
     let session = driver.session();
