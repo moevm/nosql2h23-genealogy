@@ -50,16 +50,22 @@ let getUserData = async (login,password) => { // получение всех с�
     return (!res ? [] : res.records);
 }
 
-let getAllId = async () => { // получение всех id дерева
+let getAllId = async (userId) => { // получение всех id дерева
     let session = driver.session();
-    const res = await session.run('MATCH (n)\n' +
-        'RETURN ID(n)'
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId ' +
+            'RETURN N',{
+                userId: userId
+            }
         );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+
     session.close();
-    console.log("RESULT:");
-    const result = res.records.map(id => parseInt(id._fields))
-    console.log(result)
-    return (!result ? [] : result);
+
 }
 let createUser = async (user) => { // создаём пользователя
     let session = driver.session();
@@ -81,21 +87,18 @@ let createNode = async (node)=>{//},relationships) =>{ // создать узе�
     let session = driver.session();
       //console.log(node)
     try {
-        const id = await session.run('CREATE(node:Relative $node)',{
+        const dateB = node.dateOfBirth.split('-')
+        const dateD = node.dateOfDeath.split('-')
+        const dateOfBirthday = new neo4j.Date(+dateB[0], +dateB[1], +dateB[2])
+        const dateOfDeath = new neo4j.Date(+dateD[0], +dateD[1], +dateD[2])
+        node.dateOfBirth = dateOfBirthday
+        node.dateOfDeath = dateOfDeath
+        const response = await session.run('CREATE(node:Relative $node) RETURN node',{
             node: node,
         }
         );
         
-        // for (const relative of relationships) {
-        //     let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
-        //         'CREATE(N)-[m:$relativeEdgeTo]->(r) WHERE Id(r) = $relativeId\n' +
-        //         'CREATE(r)-[q:$relativeEdgeFrom]->(N)', {
-        //         id: id,
-        //         relativeEdgeTo: relative.relationshipTo,
-        //         relativeEdgeFrom: relative.relationshipFrom,
-        //         relativeId: relative.id
-        //     });
-        // }
+       return response.records[0]._fields[0]
     }
     catch (err) {
         console.error(err);
@@ -104,29 +107,17 @@ let createNode = async (node)=>{//},relationships) =>{ // создать узе�
     return 'success added Node' ;
 }
 
-let createRelation = async (relationships)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let createRelation = async (relationships)=>{
 
     let session = driver.session();
-    //console.log(relationships)
     try {        
         let response = await session.run('MATCH(n1), (n2)\n'+
-        'WHERE ID(n1) = $id AND ID(n2) = $relativeId\n' +
+        'WHERE elementId(n1) = $id AND elementId(n2) = $relativeId\n' +
         'CREATE(n1)-[:'+relationships.relationshipTo+']->(n2)\n' +
         'CREATE(n2)-[:'+relationships.relationshipFrom+']->(n1)', {
-            id: Number(relationships.id),
-            // relativeEdgeTo: relationships.relationshipTo,
-            // relativeEdgeFrom: relationships.relationshipFrom,
-            relativeId: Number(relationships.relativeId)
+            id: relationships.id,
+            relativeId: relationships.relativeId
         });
-        
-        // 'MATCH(n1), (n2)\n'+
-        // 'WHERE ID(n1) = $id AND ID(n2) = $relativeId\n' +
-        // 'CREATE(n1)-[:'+relationships.relationshipTo+']->(n2)\n' +
-        // 'CREATE(n2)-[:'+relationships.relationshipFrom+']->(n1)'
-
-        // 'MATCH(N),(r) WHERE Id(N) = $id AND Id(r) = $relativeId\n' +
-        // 'CREATE(N)-[m:'+relationships.relationshipTo+']->(r) \n' +
-        // 'CREATE(r)-[q:'+relationships.relationshipFrom+']->(N)'
         
     }
     catch (err) {

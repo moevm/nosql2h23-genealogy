@@ -20,7 +20,7 @@
             <v-btn
               min-width="350px"
               class="green-button mt-7 ml-5"
-              @click="addNodeInDB"
+              @click="addNode"
             >
               Сохранить
             </v-btn>
@@ -146,38 +146,41 @@
 
           </v-col>
         </v-row>
-        
+
         <v-row>
           <p class="ml-15 blue-color">
-              Родство
-            </p>
+            Родство
+          </p>
         </v-row>
-        <v-row>
-    <!-- Первый выпадающий список -->
-          <v-select
-            v-model="selectedItem1"
-            :items="items1"
-          >
-        </v-select>
-
-    <!-- Второй выпадающий список -->
-          <v-select
-            v-model="selectedItem2"
-            :items="items2"
-          >
-        </v-select>
+        <v-row v-for="(section,index) in selectNameSections">
+          <!-- Первый выпадающий список -->
+          <v-col>
+            <v-select
+              v-model="selectNameSections[index].value"
+              item-title="name"
+              item-value="nodeId"
+              return-object
+              :items="getAllNodeSelections"
+            />
+          </v-col>
+          <!-- Второй выпадающий список -->
+          <v-col>
+            <v-select
+              v-model="selectTypeRelationshipSections[index].value"
+              :items="typeRelationships"
+            />
+          </v-col>
         </v-row>
 
-
         <v-row>
-            <v-btn
-              min-width="350px"
-              class="green-button mt-7 ml-5"
-              @click="addRelationInDB"
-            >
-              Добавить
-            </v-btn>
-          </v-row>
+          <v-btn
+            min-width="350px"
+            class="green-button mt-7 ml-5"
+            @click="addSection"
+          >
+            Добавить
+          </v-btn>
+        </v-row>
       </v-col>
     </v-row>
   </v-container>
@@ -190,53 +193,13 @@
 <script>
 import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {computed, onMounted, ref} from "vue";
-
+import {useAppStore} from "@/store/app";
+import {generateNPS} from "../../methods/informationCreator";
 export default {
   name: "addNodePage",
   components: {MainNavigation},
   setup() {
-    const addNodeInDB = async () =>{
-      const dataNode ={
-        UserId:'4:3a60676e-a8e6-488e-8033-bd8204f859b7:5',
-        name: name.value,
-        surname: surname.value,
-        patronymic: patronymic.value,
-        dateOfBirth: dateOfBirth.value,
-        dateOfDeath: dateOfDeath.value,
-        gender: gender.value,
-        generation: '1'
-      };
-      let res = await fetch(`http://localhost:3000/create_node`,{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-        body: JSON.stringify(dataNode)
-      });
-      //console.log("Gпроверка на действие функциилалалалалла")
-    }
-    const addRelationInDB = async () =>{
-      const relationships ={
-        id: '0',
-        relationshipTo: 'FATHER',
-        relationshipFrom:'SON',
-        relativeId: '1'
-      }
-      //console.log("Gпроверка на действие функциилалалалалла")
-      let res = await fetch(`http://localhost:3000/create_relation`,{
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-        body: JSON.stringify(relationships)
-      });
-    }
-    let items1 = ref([])
-    onMounted(async () => {
-      const res = await fetch(`http://localhost:3000/get_all_id`)
-      items1 = res
-      console.log(items1, res)
-    })
+    const store = useAppStore()
     const changeFlag = ref(true)
     const name = ref("")
     const surname = ref("")
@@ -244,9 +207,121 @@ export default {
     const dateOfBirth = ref("")
     const dateOfDeath = ref("")
     const gender = ref("")
-    let selectedItem1 = ref("")
-    let selectedItem2 = ref("")
-    const items2 = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать','Сын\\Дочь' ]
+    const treeNodes = ref([])
+    const typeRelationships = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать', 'Сын\\Дочь']
+    const selectNameSections = ref([ref('')])
+    const selectTypeRelationshipSections = ref([ref('')])
+    const nodeCreated = ref({})
+    const addNodeInDB = async () => {
+      const dataNode = {
+        UserId: store.userId,
+        name: name.value,
+        surname: surname.value,
+        patronymic: patronymic.value,
+        dateOfBirth: `${dateOfBirth.value}`,
+        dateOfDeath: `${dateOfDeath.value}`,
+        gender: gender.value,
+        generation: '1'
+      };
+      const res = await fetch(`http://localhost:3000/create_node`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataNode)
+      });
+      const data = await res.json();
+      nodeCreated.value = data
+    }
+    const addRelationInDB = async (relationshipTo,relationshipFrom,relativeId) => {
+      const relationships = {
+        id: nodeCreated.value.elementId,
+        relationshipTo,
+        relationshipFrom,
+        relativeId
+      }
+
+      const res = await fetch(`http://localhost:3000/create_relation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(relationships)
+      });
+
+    }
+    const  addNode = async () => {
+      await addNodeInDB()
+      for(let i = 0;i < selectNameSections.value.length;i++){
+        const relationshipFrom =  selectTypeRelationshipSections.value[i].value
+        let typeRelationshipFrom
+        let typeRelationshipTo
+        const nodeGender = nodeCreated.value.properties.gender
+        switch (relationshipFrom){
+          case 'Супруг\\Супруга':{
+            typeRelationshipTo = nodeGender === 'М' ? 'HUSBAND' : 'WIFE'
+            if(selectNameSections.value[i].value.gender === 'М'){
+              typeRelationshipFrom = 'HUSBAND'
+            }
+            else{
+              typeRelationshipFrom = 'WIFE'
+            }
+            break
+          }
+          case  'Брат\\Сестра':{
+            typeRelationshipTo = nodeGender === 'М' ? 'BROTHER' : 'SISTER'
+            if(selectNameSections.value[i].value.gender === 'М'){
+              typeRelationshipFrom = 'BROTHER'
+            }
+            else{
+              typeRelationshipFrom = 'SISTER'
+            }
+            break
+          }
+          case  'Отец\\Мать':{
+            typeRelationshipTo = nodeGender === 'М' ? 'SON' : 'DAUGHTER'
+            if(selectNameSections.value[i].value.gender === 'М'){
+              typeRelationshipFrom = 'FATHER'
+            }
+            else{
+              typeRelationshipFrom = 'MOTHER'
+            }
+            break
+          }
+          case  'Сын\\Дочь':{
+            typeRelationshipTo = nodeGender === 'М' ? 'FATHER' : 'MOTHER'
+            if(selectNameSections.value[i].value.gender === 'М'){
+              typeRelationshipFrom = 'SON'
+            }
+            else{
+              typeRelationshipFrom = 'DAUGHTER'
+            }
+            break
+          }
+        }
+        await addRelationInDB(typeRelationshipTo,typeRelationshipFrom,selectNameSections.value[i].value.nodeId)
+      }
+    }
+    const addSection = () => {
+      selectNameSections.value.push(ref(''))
+      selectTypeRelationshipSections.value.push(ref(''))
+    }
+    onMounted(async () => {
+      const res = await fetch(`http://localhost:3000/get_all_id/${store.userId}`)
+      treeNodes.value = await res.json()
+    })
+    const getAllNodeSelections =  computed(() => {
+      const nodeSelections = []
+      for(let i = 0;i< treeNodes.value.length;i++){
+        const node = {
+          name: generateNPS(treeNodes.value[i]._fields[0].properties),
+          nodeId: treeNodes.value[i]._fields[0].elementId,
+          gender: treeNodes.value[i]._fields[0].properties.gender,
+        }
+        nodeSelections.push(node)
+      }
+      return nodeSelections
+    })
     return {
       changeFlag,
       name,
@@ -255,12 +330,14 @@ export default {
       gender,
       dateOfBirth,
       dateOfDeath,
-      selectedItem1,
-      selectedItem2,
-      items1,
-      items2,
-      addNodeInDB,
-      addRelationInDB
+      selectNameSections,
+      selectTypeRelationshipSections,
+      treeNodes,
+      typeRelationships,
+      getAllNodeSelections,
+      addNode,
+      addRelationInDB,
+      addSection
     }
   }
 }

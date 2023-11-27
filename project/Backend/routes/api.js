@@ -30,9 +30,9 @@ router.get('/get_tree/:id',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
-router.get('/get_all_id',  async(req, res, next)=> {
-    const allId = req.body;
-    let result = await neo4j_api.getAllId();
+router.get('/get_all_id/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let result = await neo4j_api.getAllId(id);
     console.log("RESULT IS", result)
     res.status(200).send(result)
 })
@@ -55,15 +55,13 @@ router.post('/neo4j_post', async(req, res, next) => {
 
 router.post('/create_node', async(req, res, next) => {
     let node = req.body;
-    //console.log("Gпроверка на действие функциилалалалалла2")
-    await neo4j_api.createNode(node);
-    // let string = await neo4j_api.set_user();
-    res.status(200).send("Node created")
+    const nodeCreated = await neo4j_api.createNode(node);
+
+    res.status(200).send(nodeCreated)
 })
 
 router.post('/create_relation', async(req, res, next) => {
     let relationships = req.body;
-    // console.log("Gпроверка на действие функциилалалалалла2")
     await neo4j_api.createRelation(relationships);
     // let string = await neo4j_api.set_user();
     res.status(200).send("Relation created")
