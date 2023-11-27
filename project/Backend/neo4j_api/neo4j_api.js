@@ -49,6 +49,18 @@ let getUserData = async (login,password) => { // получение всех с�
     console.log(res.records)
     return (!res ? [] : res.records);
 }
+
+let getAllId = async () => { // получение всех id дерева
+    let session = driver.session();
+    const res = await session.run('MATCH (n)\n' +
+        'RETURN ID(n)'
+        );
+    session.close();
+    console.log("RESULT:");
+    const result = res.records.map(id => parseInt(id._fields))
+    console.log(result)
+    return (!result ? [] : result);
+}
 let createUser = async (user) => { // создаём пользователя
     let session = driver.session();
     let res = {}
@@ -233,5 +245,6 @@ export default {
     giveAccess,
     updateUser,
     getUserByLoginPassword,
-    getTreeByUserId
+    getTreeByUserId,
+    getAllId
 }

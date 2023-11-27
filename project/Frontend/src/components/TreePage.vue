@@ -85,11 +85,11 @@ export default {
     const treeInfo = ref([])
     const tableDict = ref(new Map())
     onMounted(async () => {
-      console.log("Gпроверка на действие функциилалалалалла2")
+      //console.log("Gпроверка на действие функциилалалалалла2")
       const res = await fetch(`http://localhost:3000/get_tree/${store.userId}`)
       treeInfo.value = await res.json()
       tableDict.value = generateTableInfo(treeInfo.value)
-      console.log("Gпроверка на действие функциилалалалалла3")
+      //console.log("Gпроверка на действие функциилалалалалла3")
     })
 
     const generateTableInfo = (data) => {

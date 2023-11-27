@@ -189,8 +189,7 @@
 
 <script>
 import MainNavigation from "@/components/UI/MainNavigation.vue";
-import {ref} from "vue";
-
+import {computed, onMounted, ref} from "vue";
 
 export default {
   name: "addNodePage",
@@ -232,6 +231,12 @@ export default {
         body: JSON.stringify(relationships)
       });
     }
+    let items1 = ref([])
+    onMounted(async () => {
+      const res = await fetch(`http://localhost:3000/get_all_id`)
+      items1 = res
+      console.log(items1, res)
+    })
     const changeFlag = ref(true)
     const name = ref("")
     const surname = ref("")
@@ -241,7 +246,6 @@ export default {
     const gender = ref("")
     let selectedItem1 = ref("")
     let selectedItem2 = ref("")
-    const items1 = ['Значение 1', 'Значение 2', 'Значение 3']
     const items2 = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать','Сын\\Дочь' ]
     return {
       changeFlag,

@@ -30,6 +30,13 @@ router.get('/get_tree/:id',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
+router.get('/get_all_id',  async(req, res, next)=> {
+    const allId = req.body;
+    let result = await neo4j_api.getAllId();
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
 router.post('/create_user', async(req, res, next) => {
     const user = req.body;
     await neo4j_api.createUser(user);
