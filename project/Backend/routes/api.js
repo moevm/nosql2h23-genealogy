@@ -30,6 +30,13 @@ router.get('/get_tree/:id',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
+router.get('/get_all_id/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let result = await neo4j_api.getAllId(id);
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
 router.post('/create_user', async(req, res, next) => {
     const user = req.body;
     await neo4j_api.createUser(user);
@@ -45,4 +52,19 @@ router.post('/neo4j_post', async(req, res, next) => {
    // let string = await neo4j_api.set_user();
     res.status(200).send("User named " + " created")
 })
+
+router.post('/create_node', async(req, res, next) => {
+    let node = req.body;
+    const nodeCreated = await neo4j_api.createNode(node);
+
+    res.status(200).send(nodeCreated)
+})
+
+router.post('/create_relation', async(req, res, next) => {
+    let relationships = req.body;
+    await neo4j_api.createRelation(relationships);
+    // let string = await neo4j_api.set_user();
+    res.status(200).send("Relation created")
+})
+
 export default router

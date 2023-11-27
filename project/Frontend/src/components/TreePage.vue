@@ -3,14 +3,17 @@
   <v-container class="mt-10">
     <v-row>
       <v-btn
+        value="addNode"
         class="green-button rounded-button"
         min-width="200px"
+        @click="$router.push('/addNode')"
       >
         Добавить
       </v-btn>
       <v-btn
         class="green-button rounded-button ml-15"
         min-width="200px"
+        @click="$router.push('/VisualizeTree')"
       >
         Древо
       </v-btn>
@@ -76,6 +79,7 @@ export default {
     MainNavigation
   },
   setup() {
+
     const uploader = ref(null)
     const selectedFile = ref(null)
     const itemsPerPage = 5
@@ -134,32 +138,10 @@ export default {
       return table
     }
 
-    /*const generateInfo = (node) => {
-      return node.name + ' ' +
-        node?.patronymic + ' ' + node.surname + ' ' +
-        node.gender + ' ' +
-        generateDate(node.dateOfBirth) + (node.dateOfDeath === undefined ? '' : ' - ' + generateDate(node.dateOfDeath))
-    }
-
-    const generateDate = (date) => {
-      return (+date.day.low < 10 ? `0${date.day.low}.` : `${date.day.low}.`) +
-        (+date.month.low < 10 ? `0${date.month.low}.` : ` ${date.month.low}.`) +
-        date.year.low
-    }*/
     const headers = [
       {title: 'Информация', align: 'center', key: 'information'},
       {title: 'Родство', align: 'center', key: 'relationship'},
       {title: '', align: 'center', key: 'btn'},
-    ]
-    const hardcoded_data = [
-      {
-        information: 'Петр Петрович Петров\n М\n 01.01.1900 -  01.01.2000\n',
-        relationship: 'Супруга: Александра Александровна Александрова\n Сын: Василий Петрович Петров',
-      },
-      {
-        information: 'Александра Александровна Александрова\n Ж\n 01.01.1900',
-        relationship: 'Супруг: Петр Петрович Петров\n Сын: Василий Петрович Петров',
-      },
     ]
 
     const handleFileImport = () => {
@@ -174,7 +156,6 @@ export default {
     return {
       itemsPerPage,
       headers,
-      hardcoded_data,
       selectedFile,
       tableDict,
       handleFileImport,
@@ -186,3 +167,5 @@ export default {
   }
 }
 </script>
+
+

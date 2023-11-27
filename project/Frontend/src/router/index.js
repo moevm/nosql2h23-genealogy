@@ -7,6 +7,7 @@ import StatisticsPage from "@/components/StatisticsPage.vue"
 import RecommendationPage from "@/components/RecommendationPage.vue";
 import TreePage from "@/components/TreePage.vue";
 import VisualizeTreePage from "@/components/VisualizeTreePage.vue";
+import AddNodePage from "@/components/AddNodePage.vue";
 
 const routes = [
   {
@@ -36,6 +37,10 @@ const routes = [
   {
     path: '/VisualizeTree',
     component: VisualizeTreePage,
+  },
+  {
+    path: '/addNode',
+    component: AddNodePage,
   }
 ]
 

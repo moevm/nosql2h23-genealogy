@@ -1,7 +1,7 @@
 import neo4j from 'neo4j-driver'
 import {creds} from '../config/credentials.js'
 
-const driver = neo4j.driver("bolt://0.0.0.0:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
+const driver = neo4j.driver("bolt://127.0.0.1:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
 let get_users = async () => { // просим количество user
     let session = driver.session();
@@ -49,6 +49,24 @@ let getUserData = async (login,password) => { // получение всех с�
     console.log(res.records)
     return (!res ? [] : res.records);
 }
+
+let getAllId = async (userId) => { // получение всех id дерева
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId ' +
+            'RETURN N',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+
+    session.close();
+
+}
 let createUser = async (user) => { // создаём пользователя
     let session = driver.session();
     let res = {}
@@ -64,32 +82,51 @@ let createUser = async (user) => { // создаём пользователя
     return res;
 }
 
-let createNode = async (node,relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let createNode = async (node)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
-
+      //console.log(node)
     try {
-        const id = await session.run('CREATE(node:Relative $node)\n' +
-            'RETURN node.id', {
-            node: node
-        });
-        for (const relative of relationships) {
-            let response = await session.run('MATCH(N) WHERE Id(N) = $id\n' +
-                'CREATE(N)-[m:$relativeEdgeTo]->(r) WHERE Id(r) = $relativeId\n' +
-                'CREATE(r)-[q:$relativeEdgeFrom]->(N)', {
-                id: id,
-                relativeEdgeTo: relative.relationshipTo,
-                relativeEdgeFrom: relative.relationshipFrom,
-                relativeId: relative.id
-            });
+        const dateB = node.dateOfBirth.split('-')
+        const dateD = node.dateOfDeath.split('-')
+        const dateOfBirthday = new neo4j.Date(+dateB[0], +dateB[1], +dateB[2])
+        const dateOfDeath = new neo4j.Date(+dateD[0], +dateD[1], +dateD[2])
+        node.dateOfBirth = dateOfBirthday
+        node.dateOfDeath = dateOfDeath
+        const response = await session.run('CREATE(node:Relative $node) RETURN node',{
+            node: node,
         }
+        );
+        
+       return response.records[0]._fields[0]
     }
     catch (err) {
         console.error(err);
         return 'error';
     }
-    return 'success added Node by Id: ' + id;
+    return 'success added Node' ;
 }
+
+let createRelation = async (relationships)=>{
+
+    let session = driver.session();
+    try {        
+        let response = await session.run('MATCH(n1), (n2)\n'+
+        'WHERE elementId(n1) = $id AND elementId(n2) = $relativeId\n' +
+        'CREATE(n1)-[:'+relationships.relationshipTo+']->(n2)\n' +
+        'CREATE(n2)-[:'+relationships.relationshipFrom+']->(n1)', {
+            id: relationships.id,
+            relativeId: relationships.relativeId
+        });
+        
+    }
+    catch (err) {
+        console.error(err);
+        return 'error';
+    }
+    return 'success added Node' ;
+}
+
 
 let deleteNode = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
@@ -193,10 +230,12 @@ export default {
     createUser,
     getUserData,
     createNode,
+    createRelation,
     deleteNode,
     takeAccess,
     giveAccess,
     updateUser,
     getUserByLoginPassword,
-    getTreeByUserId
+    getTreeByUserId,
+    getAllId
 }

@@ -107,6 +107,7 @@ export default {
         const data = await res.json()
         if (data.hasOwnProperty('elementId')) {
           store.userId = data.elementId
+          localStorage.setItem('userId',data.elementId)
           router.push('/myTree')
         } else {
           uncorrectUserSnack.value = true
