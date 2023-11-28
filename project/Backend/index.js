@@ -1,4 +1,5 @@
 import express, {urlencoded} from 'express'
+import cors from 'cors'
 import bodyParser from "body-parser";
 import Routes from './routes/api.js'
 const app = express()
@@ -11,6 +12,7 @@ app.use(function (req, res, next) {
     );
     next();
 });
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(Routes)

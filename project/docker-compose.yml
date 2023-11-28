@@ -8,6 +8,8 @@ services:
       - "8081:3000"
     depends_on:
       - db
+    networks:
+      - default
   frontend:
     build: ./Frontend
     command: npm run serve
@@ -15,6 +17,8 @@ services:
       - "8082:8000"
     depends_on:
       - backend
+    networks:
+      - default
   db:
     restart: always
     image: neo4j:5.13.0
@@ -27,4 +31,7 @@ services:
       - ./export/neo4j/var/lib/neo4j/conf:/var/lib/neo4j/conf
       - ./export/neo4j/var/lib/neo4j/import:/var/lib/neo4j/import
       - ./export/neo4j/plugins:/plugins
-    
+    networks:
+      - default
+networks:
+  default:
