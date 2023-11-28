@@ -261,13 +261,17 @@ export default {
   components: {MainNavigation},
   setup() {
     const changeFlag = ref(false)
-    const name = ref("Иван")
-    const surname = ref("Иванов")
-    const patronymic = ref("Иванович")
-    const date = ref("2000-01-01")
-    const gender = ref("М")
-    const login = ref("IvanIvan@gmail.com")
+    const name = ref('')
+    const surname = ref('')
+    const patronymic = ref('')
+    const date = ref('')
+    const gender = ref('')
+    const login = ref('')
     const password = ref("********")
+    onMounted(async () => {
+      const res = await fetch(`http://localhost:3000/get_all_id/${store.userId}`)
+      treeNodes.value = await res.json()
+    })
     return {
       changeFlag,
       name,
