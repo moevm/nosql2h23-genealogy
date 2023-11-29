@@ -224,13 +224,29 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
         'ORDER BY start ' +
         'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result', {
             userId: userId
-        });*/
-        return res.records[0]._fields[0]
+        });
+        return res.records[0]._fields[0]*/
     }
     catch (err) {
         console.error(err);
         return 'cannot give access';
     }
+}
+
+let getAllId = async (userId) => { // получение всех id дерева
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId ' +
+            'RETURN N',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
 }
 
 
@@ -248,5 +264,6 @@ export default {
     updateUser,
     getUserByLoginPassword,
     getTreeByUserId,
-    getUserInfo
+    getUserInfo,
+    getAllId
 }
