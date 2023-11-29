@@ -236,7 +236,7 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
 let getAllId = async (userId) => { // получение всех id дерева
     let session = driver.session();
     try{
-        const res = await session.run('MATCH (N) WHERE N.UserId = $userId ' +
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId or elementid(N) = $userId ' +
             'RETURN N',{
                 userId: userId
             }
