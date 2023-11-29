@@ -50,15 +50,15 @@ let getUserData = async (login,password) => { // получение всех с�
     return (!res ? [] : res.records);
 }
 
-let getAllId = async (userId) => { // получение всех id дерева
+let getUserInfo = async (userId) => { // получение информации о пользователе
     let session = driver.session();
     try{
-        const res = await session.run('MATCH (N) WHERE N.UserId = $userId ' +
+        const res = await session.run('MATCH (N) WHERE elementid(N) = $userId ' +
             'RETURN N',{
                 userId: userId
             }
         );
-        return res.records
+        return res.records[0]._fields[0].properties
     }
     catch(err){
         console.error(err);
@@ -203,7 +203,18 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
     let session = driver.session();
 
     try {
-        const res = await session.run('MATCH path = (N)-[*]-(other) ' +
+        const res = await session.run('MATCH path = (n)-[k]-(other) WHERE elementid(n) = $userId or other.UserId = $userId ' + 
+        'WITH relationships(path) AS rels, nodes(path) AS nodes ' +
+        'UNWIND range(0, size(rels) - 1) AS idx ' +
+        'WITH rels[idx] AS rel, nodes[idx] AS start, nodes[idx+1] AS end ' +
+        'WHERE NOT type(rel) = "HAVE_PRIVACY" AND id(start) < id(end) ' +
+        'WITH start, rel, end ' +
+        'ORDER BY start ' +
+        'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result ', {
+            userId: userId
+        });
+        return res.records[0]._fields[0]
+        /*const res = await session.run('MATCH path = (N)-[*]-(other) ' +
         'WHERE elementid(N) = $userId AND NOT type(relationships(path)[0]) = "HAVE_PRIVACY" ' +
         'WITH relationships(path) AS rels, nodes(path) AS nodes ' +
         'UNWIND range(0, size(rels) - 1) AS idx ' +
@@ -213,7 +224,7 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
         'ORDER BY start ' +
         'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result', {
             userId: userId
-        });
+        });*/
         return res.records[0]._fields[0]
     }
     catch (err) {
@@ -237,5 +248,5 @@ export default {
     updateUser,
     getUserByLoginPassword,
     getTreeByUserId,
-    getAllId
+    getUserInfo
 }
