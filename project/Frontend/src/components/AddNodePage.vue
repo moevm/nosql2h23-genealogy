@@ -195,10 +195,13 @@ import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateNPS} from "../../methods/informationCreator";
+import {useRouter} from 'vue-router'
+
 export default {
   name: "addNodePage",
   components: {MainNavigation},
   setup() {
+    const router = useRouter()
     const store = useAppStore()
     const changeFlag = ref(true)
     const name = ref("")
@@ -301,6 +304,7 @@ export default {
         }
         await addRelationInDB(typeRelationshipTo,typeRelationshipFrom,selectNameSections.value[i].value.nodeId)
       }
+      router.push('/myTree')
     }
     const addSection = () => {
       selectNameSections.value.push(ref(''))

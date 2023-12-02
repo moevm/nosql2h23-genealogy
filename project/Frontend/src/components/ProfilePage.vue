@@ -254,20 +254,33 @@
 
 <script>
 import MainNavigation from "@/components/UI/MainNavigation.vue";
-import {ref} from "vue";
+import {ref, onMounted} from "vue";
+import {useAppStore} from "@/store/app";
 
 export default {
   name: "profilePage",
   components: {MainNavigation},
   setup() {
+    const store = useAppStore()
     const changeFlag = ref(false)
-    const name = ref("Иван")
-    const surname = ref("Иванов")
-    const patronymic = ref("Иванович")
-    const date = ref("2000-01-01")
-    const gender = ref("М")
-    const login = ref("IvanIvan@gmail.com")
+    const name = ref('')
+    const surname = ref('')
+    const patronymic = ref('')
+    const date = ref('')
+    const gender = ref('')
+    const login = ref('')
     const password = ref("********")
+    onMounted(async () => {
+      const res = await fetch(`http://localhost:3000/get_user_info/${store.userId}`)
+      let info_json = await res.json()
+      console.log(info_json)
+      name.value = info_json.name;
+      surname.value = info_json.surname;
+      patronymic.value = info_json.patronymic;
+      date.value = info_json.dateOfBirth.day.low + '-' + info_json.dateOfBirth.month.low + '-' + info_json.dateOfBirth.year.low;
+      gender.value = info_json.gender;
+      login.value = info_json.login;
+    })
     return {
       changeFlag,
       name,
