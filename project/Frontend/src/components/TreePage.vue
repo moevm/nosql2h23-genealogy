@@ -40,28 +40,23 @@
         @change="onFileChanged"
       >
     </v-row>
+    <v-row class="mt-10">
+    <v-text-field
+      v-model="search"
+      label="Search"
+      prepend-inner-icon="mdi-magnify"
+      single-line
+      variant="outlined"
+      hide-details
+    />
+    </v-row>
     <v-data-table
       v-model:items-per-page="itemsPerPage"
       :headers="headers"
-      :items="Array.from(tableDict.keys())"
-      item-value="name"
+      :items="filteredItems"
+      :search="search"
       class="elevation-1 mt-10"
-    >
-      <template v-slot:item="row">
-        <tr>
-          <td>{{ generateInfo(tableDict.get(row.item).information.properties) }}</td>
-          <td>{{ tableDict.get(row.item).relationship }}</td>
-          <td>
-              <v-btn>
-                <v-icon icon="mdi-pencil"/>
-              </v-btn>
-            <v-btn>
-              <v-icon icon="mdi-close"/>
-            </v-btn>
-          </td>
-        </tr>
-      </template>
-    </v-data-table>
+    />
   </v-container>
 </template>
 
@@ -81,6 +76,7 @@ export default {
   setup() {
 
     const uploader = ref(null)
+    const search = ref("")
     const selectedFile = ref(null)
     const itemsPerPage = 5
     const store = useAppStore()
@@ -137,10 +133,16 @@ export default {
       })
       return table
     }
-
+    const customFilter = (column, value) => {
+      // Фильтр будет применяться только к столбцу 'column1'
+      if (column === 'column1') {
+        return String(this.items[column]).toLowerCase().includes(String(value).toLowerCase());
+      }
+      return true; // Для остальных столбцов всегда возвращаем true
+    }
     const headers = [
-      {title: 'Информация', align: 'center', key: 'information'},
-      {title: 'Родство', align: 'center', key: 'relationship'},
+      {title: 'Информация', align: 'center', key: 'information',value: 'information', filter: value => customFilter('information', value)},
+      {title: 'Родство', align: 'center', key: 'relationship',value: 'relationship', filter: value => customFilter('relationship', value)},
       {title: '', align: 'center', key: 'btn'},
     ]
 
@@ -153,15 +155,36 @@ export default {
 
       // Do whatever you need with the file, liek reading it with FileReader
     }
+    const parseDataToTable = computed(() => {
+      const tableData = []
+      const NodeIds = []
+      Array.from(tableDict.value.keys()).forEach(el => {
+        NodeIds.push(el)
+        const data = {
+          information: generateInfo(tableDict.value.get(el).information.properties),
+          relationship: tableDict.value.get(el).relationship
+        }
+        tableData.push(data)
+      })
+      return tableData
+    })
+
+    const filteredItems = computed(() => {
+      // Фильтруем только по первому столбцу
+      return parseDataToTable.value.filter(item => item.information.toLowerCase().includes(search.value.toLowerCase()));
+    })
     return {
       itemsPerPage,
       headers,
       selectedFile,
       tableDict,
+      search,
       handleFileImport,
       onFileChanged,
       generateInfo,
-      uploader
+      uploader,
+      parseDataToTable,
+      filteredItems
     }
 
   }
