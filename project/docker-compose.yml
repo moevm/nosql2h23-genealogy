@@ -25,11 +25,9 @@ services:
     container_name: db
     environment:
       NEO4J_AUTH: neo4j/neo4jneo4j
-    command: |
-      neo4j-admin set-initial-password password
-      cypher-shell -u neo4j -p password -f /var/lib/neo4j/init.cypher
     volumes:
       - neo4j_data:/data/
+      - ./init.cypher:/docker-entrypoint-initdb.d/init.cypher
     networks:
       - default
 networks:
