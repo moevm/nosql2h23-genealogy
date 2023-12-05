@@ -128,11 +128,11 @@ let createRelation = async (relationships)=>{
 }
 
 
-let deleteNode = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let deleteNodeById = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
     try {
-        const res = await session.run('MATCH (N) WHERE Id(N) = $id\n' +
+        const res = await session.run('MATCH (N) WHERE elementId(N) = $id\n' +
             'DETACH DELETE N', {
             id: id
         });
@@ -258,7 +258,7 @@ export default {
     getUserData,
     createNode,
     createRelation,
-    deleteNode,
+    deleteNodeById,
     takeAccess,
     giveAccess,
     updateUser,

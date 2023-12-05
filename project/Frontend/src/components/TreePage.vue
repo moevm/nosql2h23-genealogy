@@ -56,7 +56,30 @@
       :items="filteredItems"
       :search="search"
       class="elevation-1 mt-10"
-    />
+    >
+      <template v-slot:item="row">
+        <tr>
+          <td>{{ row.item.information }}</td>
+          <td>{{ row.item.relationship }}</td>
+          <td v-if="row.item.nodeId !== userId">
+            <v-btn>
+              <v-icon icon="mdi-pencil"/>
+            </v-btn>
+            <v-btn>
+              <v-icon icon="mdi-close"/>
+              <DeleteDialog
+                :info="row.item.information"
+                :node-id="row.item.nodeId"
+                v-model="row.item.visible"
+                @update:dialog="row.item.visible = false"
+                @deleteNode="deleteNode"
+              />
+            </v-btn>
+          </td>
+        </tr>
+
+      </template>
+    </v-data-table>
   </v-container>
 </template>
 
@@ -68,9 +91,11 @@ import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
+import DeleteDialog from "@/components/UI/DeleteDialog.vue";
 export default {
   name: 'treePage',
   components: {
+    DeleteDialog,
     MainNavigation
   },
   setup() {
@@ -80,14 +105,18 @@ export default {
     const selectedFile = ref(null)
     const itemsPerPage = 5
     const store = useAppStore()
+    const userId = store.userId
     const treeInfo = ref([])
     const tableDict = ref(new Map())
+    const dialog = ref(false)
     onMounted(async () => {
+      await getTreeFromDb()
+    })
+    const getTreeFromDb = async () => {
       const res = await fetch(`http://localhost:3000/get_tree/${store.userId}`)
       treeInfo.value = await res.json()
       tableDict.value = generateTableInfo(treeInfo.value)
-    })
-
+    }
     const generateTableInfo = (data) => {
       const table = new Map()
       data.forEach((relation) => {
@@ -155,6 +184,19 @@ export default {
 
       // Do whatever you need with the file, liek reading it with FileReader
     }
+    const deleteNode = async (nodeId) => {
+      const data = {
+        nodeId: nodeId
+      }
+      const res = await fetch(`http://localhost:3000/delete_node`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(data)
+      })
+      await getTreeFromDb()
+    }
     const parseDataToTable = computed(() => {
       const tableData = []
       const NodeIds = []
@@ -162,7 +204,9 @@ export default {
         NodeIds.push(el)
         const data = {
           information: generateInfo(tableDict.value.get(el).information.properties),
-          relationship: tableDict.value.get(el).relationship
+          relationship: tableDict.value.get(el).relationship,
+          nodeId: el,
+          visible: false,
         }
         tableData.push(data)
       })
@@ -184,7 +228,10 @@ export default {
       generateInfo,
       uploader,
       parseDataToTable,
-      filteredItems
+      filteredItems,
+      userId,
+      dialog,
+      deleteNode
     }
 
   }
