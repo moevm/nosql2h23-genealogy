@@ -83,7 +83,7 @@ export default {
     const treeInfo = ref([])
     const tableDict = ref(new Map())
     onMounted(async () => {
-      const res = await fetch(`http://localhost:${store.serverPort}/get_tree/${store.userId}`)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/get_tree/${store.userId}`)
       treeInfo.value = await res.json()
       tableDict.value = generateTableInfo(treeInfo.value)
     })

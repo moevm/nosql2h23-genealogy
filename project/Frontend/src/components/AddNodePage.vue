@@ -244,7 +244,7 @@ export default {
         relativeId
       }
 
-      const res = await fetch(`http://localhost:${store.serverPort}/create_relation`, {
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/create_relation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -311,7 +311,7 @@ export default {
       selectTypeRelationshipSections.value.push(ref(''))
     }
     onMounted(async () => {
-      const res = await fetch(`http://localhost:${store.serverPort}/get_all_id/${store.userId}`)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/get_all_id/${store.userId}`)
       treeNodes.value = await res.json()
     })
     const getAllNodeSelections =  computed(() => {

@@ -103,7 +103,7 @@ export default {
     }
     const Autorize = async () => {
       if (LoginFormat(login.value) === true && PasswordFormat(password.value) === true && notEmptyField(login.value) && notEmptyField(password.value)) {
-        const res = await fetch(`http://localhost:${store.serverPort}/get_user/${login.value}/${password.value}`)
+        const res = await fetch(`http://${store.domain}:${store.serverPort}/get_user/${login.value}/${password.value}`)
         const data = await res.json()
         if (data.hasOwnProperty('elementId')) {
           store.userId = data.elementId
