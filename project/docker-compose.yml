@@ -5,7 +5,7 @@ services:
     build: ./Backend
     command: npm run serve
     ports:
-      - "8081:3000"
+      - "127.0.0.1:8081:3000"
     depends_on:
       - db
     networks:
@@ -14,7 +14,7 @@ services:
     build: ./Frontend
     command: npm run serve
     ports:
-      - "8082:8000"
+      - "127.0.0.1:8082:8000"
     depends_on:
       - backend
     networks:
@@ -23,15 +23,11 @@ services:
     restart: always
     image: neo4j:5.13.0
     container_name: db
-    ports:
-      - "9000:7474"
-      - "9001:7687"
     volumes:
-      - ./export/neo4j/data:/data
-      - ./export/neo4j/var/lib/neo4j/conf:/var/lib/neo4j/conf
-      - ./export/neo4j/var/lib/neo4j/import:/var/lib/neo4j/import
-      - ./export/neo4j/plugins:/plugins
+      - neo4j_data:/data/
     networks:
       - default
 networks:
   default:
+volumes:
+  neo4j_data:
