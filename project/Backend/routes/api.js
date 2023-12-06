@@ -25,11 +25,17 @@ router.get('/get_user/:login/:password',  async(req, res, next)=> {
 
 router.post('/delete_node',  async(req, res, next)=> {
     const nodeId = req.body.nodeId;
-    console.log('deleteNode')
     let result = await neo4j_api.deleteNodeById(nodeId);
     console.log("RESULT IS", result)
     res.status(200).send(result)
 })
+
+router.post('/change_user_info',  async(req, res, next)=> {
+        const data = req.body;
+        let result = await neo4j_api.updateUser(data);
+        console.log("RESULT IS", result)
+        res.status(200).send(result)
+    })
 router.get('/get_tree/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let result = await neo4j_api.getTreeByUserId(id);
