@@ -182,13 +182,27 @@ let takeAccess = async (userId, observers) => { // передаём id поль�
     return "Access was taken";
 }
 
-let updateUser = async (userId,data) =>{ // передача новых данных по пользователю при редактировании профиля
+let updateUser = async (data) =>{ // передача новых данных по пользователю при редактировании профиля
+    const dateB = data.dateOfBirth.split('-')
+    const dateOfBirthday = new neo4j.Date(+dateB[0], +dateB[1], +dateB[2])
     let session = driver.session();
     try {
-            const res = await session.run('MATCH(N) WHERE Id(N) = $userId ' +
-                'SET N = properties($updateUserData)', {
-                userId: userId,
-                updateUserData: data
+            const res = await session.run('MATCH(N) WHERE elementId(N) = $userId ' +
+                'SET N.gender = $gender,' +
+                'N.name = $name,' +
+                'N.surname = $surname,' +
+                'N.login = $login,' +
+                'N.password = $password,' +
+                'N.patronymic = $patronymic,' +
+                'N.dateOfBirth = $dateOfBirth', {
+                userId: data.userId,
+                gender: data.gender,
+                name: data.name,
+                surname: data.surname,
+                login: data.login,
+                password: data.password,
+                patronymic: data.patronymic,
+                dateOfBirth: dateOfBirthday,
             });
 
     }
@@ -214,18 +228,6 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
             userId: userId
         });
         return res.records[0]._fields[0]
-        /*const res = await session.run('MATCH path = (N)-[*]-(other) ' +
-        'WHERE elementid(N) = $userId AND NOT type(relationships(path)[0]) = "HAVE_PRIVACY" ' +
-        'WITH relationships(path) AS rels, nodes(path) AS nodes ' +
-        'UNWIND range(0, size(rels) - 1) AS idx ' +
-        'WITH rels[idx] AS rel, nodes[idx] AS start, nodes[idx+1] AS end ' +
-        'WHERE NOT type(rel) = "HAVE_PRIVACY" AND id(start) < id(end) ' +
-        'WITH start, rel, end ' +
-        'ORDER BY start ' +
-        'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result', {
-            userId: userId
-        });
-        return res.records[0]._fields[0]*/
     }
     catch (err) {
         console.error(err);
