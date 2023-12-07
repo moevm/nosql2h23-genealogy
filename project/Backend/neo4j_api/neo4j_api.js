@@ -251,6 +251,25 @@ let getAllId = async (userId) => { // получение всех id дерев�
     session.close();
 }
 
+let exportInfo = async (userId) => { // получение всех id дерева
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N)-[r]->(M) WHERE N.UserId = $userId or elementid(N) = $userId ' +
+            'RETURN PROPERTIES(N), type(r), PROPERTIES(M)',{
+                userId: userId
+            }
+        )
+        let jsonResult = res.records.map(record => {
+            return record.get(0);
+          })
+        return jsonResult
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
 
 
 export default {
@@ -267,5 +286,6 @@ export default {
     getUserByLoginPassword,
     getTreeByUserId,
     getUserInfo,
-    getAllId
+    getAllId,
+    exportInfo
 }

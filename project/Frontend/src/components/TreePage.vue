@@ -29,7 +29,7 @@
       <v-btn
         class="ml-16"
         append-icon="mdi-database-export"
-        @click="handleFileImport"
+        @click="handleFileExport"
       >
         Экспорт
       </v-btn>
@@ -92,6 +92,8 @@ import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
 import DeleteDialog from "@/components/UI/DeleteDialog.vue";
+import fs from 'fs/promises';
+
 export default {
   name: 'treePage',
   components: {
@@ -99,7 +101,6 @@ export default {
     MainNavigation
   },
   setup() {
-
     const uploader = ref(null)
     const search = ref("")
     const selectedFile = ref(null)
@@ -175,14 +176,26 @@ export default {
       {title: '', align: 'center', key: 'btn'},
     ]
 
-    const handleFileImport = () => {
-      uploader.value.click()
-      // Trigger click on the FileInput
+    const handleFileImport = () => { // Импорт файла JSON
+      uploader.value.click()// Trigger click on the FileInput
+      console.log(selectedFile)
+      
     }
-    const onFileChanged = (e) => {
-      selectedFile.value = e.target.files[0];
+    const handleFileExport = async () => { // Экспорт файла JSON
+      uploader.value.click()// Trigger click on the FileInput
+      const res = await fetch(`http://localhost:3000/ExportData/${store.userId}`)
+      let data = await res.json()
+      try {
+        await fs.writeFile(selectedFile, data);
+        console.log('Данные успешно записаны в файл:', selectedFile);
+      } catch (error) {
+        console.error('Ошибка записи в файл:', error);
+      }
+    }
 
-      // Do whatever you need with the file, liek reading it with FileReader
+    const onFileChanged = (e) => { 
+      selectedFile.value = e.target.files[0];
+      // Opening File
     }
     const deleteNode = async (nodeId) => {
       const data = {
@@ -224,6 +237,7 @@ export default {
       tableDict,
       search,
       handleFileImport,
+      handleFileExport,
       onFileChanged,
       generateInfo,
       uploader,

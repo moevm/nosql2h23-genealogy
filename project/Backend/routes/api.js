@@ -57,6 +57,12 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
+router.get('/ExportData/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let result = await neo4j_api.exportInfo(id);
+    res.status(200).send(result)
+})
+
 router.post('/create_user', async(req, res, next) => {
     const user = req.body;
     await neo4j_api.createUser(user);
