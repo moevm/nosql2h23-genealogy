@@ -25,8 +25,9 @@
 </style>
 
 <script>
-  import { ref } from 'vue'
+  import {onMounted, ref } from 'vue'
   import MainNavigation from "@/components/UI/MainNavigation.vue";
+  import {useAppStore} from "@/store/app";
 
   var headers = ref([])
   var hardcoded = ref([])
@@ -36,6 +37,16 @@
     name: 'RecommendationPage',
     components: {MainNavigation},
     setup() {
+      onMounted(async () => {
+        await getOtherTrees()
+      })
+      const store = useAppStore()
+      const displaing_data = ref([])
+      const getOtherTrees = async () => {
+        const res = await fetch(`http://localhost:3000/get_other_trees/${store.userId}`)
+        //displaing_data.value = await res.json()
+        //console.log("Данные дада", displaing_data.value[0]._fields[0])
+      }
       headers = [
         { title: 'ФИО', align: 'center', key: 'full_name' },
         {
@@ -85,6 +96,8 @@
         headers,
         hardcoded,
         search,
+        getOtherTrees,
+        displaing_data
       }
     },
   }

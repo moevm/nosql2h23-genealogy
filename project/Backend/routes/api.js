@@ -57,6 +57,24 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
+router.get('/get_other_trees/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let UsersId = await neo4j_api.getOtherTrees(id);
+    let result = []
+    for (let i = 0; i < UsersId.length; i++){
+        //console.log("RESULT IS 1", UsersId[i]._fields[0])
+        let fullName = await neo4j_api.getFullName(UsersId[i]._fields[0]);
+        //console.log("RESULT IS 2", fullName[0]._fields[0])
+        let countAllNodes = await neo4j_api.getCountAllNodeInTree(UsersId[i]._fields[0]);
+        //console.log("RESULT IS 3", Number(countAllNodes[0]._fields[0]))
+        let countMatchingNodes = await neo4j_api.getCountMatchingNodeInTree(id,UsersId[i]._fields[0]);
+        //console.log("RESULT IS 4", Number(countMatchingNodes[0]._fields[0]))
+        result.push({user_id: UsersId[i]._fields[0], full_name: fullName[0]._fields[0], count_all_nodes: Number(countAllNodes[0]._fields[0]), count_matching_nodes: Number(countMatchingNodes[0]._fields[0])})
+    }
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
 router.post('/create_user', async(req, res, next) => {
     const user = req.body;
     await neo4j_api.createUser(user);
