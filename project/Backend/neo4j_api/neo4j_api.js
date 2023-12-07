@@ -260,7 +260,7 @@ let exportInfo = async (userId) => { // получение всех id дере�
             }
         )
         let jsonResult = res.records.map(record => {
-            return record.get(0);
+            return record._fields;
           })
         return jsonResult
     }

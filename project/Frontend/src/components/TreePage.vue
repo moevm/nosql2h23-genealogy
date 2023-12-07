@@ -182,15 +182,8 @@ export default {
       
     }
     const handleFileExport = async () => { // Экспорт файла JSON
-      uploader.value.click()// Trigger click on the FileInput
       const res = await fetch(`http://localhost:3000/ExportData/${store.userId}`)
-      let data = await res.json()
-      try {
-        await fs.writeFile(selectedFile, data);
-        console.log('Данные успешно записаны в файл:', selectedFile);
-      } catch (error) {
-        console.error('Ошибка записи в файл:', error);
-      }
+      let data = await res
     }
 
     const onFileChanged = (e) => { 

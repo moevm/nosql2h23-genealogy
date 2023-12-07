@@ -1,6 +1,7 @@
 import {Router} from 'express'
 import path from 'path'
 import neo4j_api from "../neo4j_api/neo4j_api.js";
+import fs from 'fs/promises';
 const router = Router()
 
 const __dirname = path.resolve()
@@ -59,8 +60,17 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
 
 router.get('/ExportData/:id',  async(req, res, next)=> {
     const id = req.params.id;
+    const filePath = path.join(__dirname, 'data', 'test.json')
     let result = await neo4j_api.exportInfo(id);
-    res.status(200).send(result)
+    console.log(filePath)
+    try {
+        await fs.writeFile(filePath, JSON.stringify(result, null, 2), { flag: 'w' });
+        console.log('Данные успешно записаны в файл');
+      } catch (error) {
+        console.error('Ошибка записи в файл:', error);
+      }
+    res.download(filePath)
+    //res.status(200).send(result)
 })
 
 router.post('/create_user', async(req, res, next) => {
