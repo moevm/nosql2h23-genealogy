@@ -306,9 +306,30 @@ let getCountMatchingNodeInTree = async (userId, userId1) => { // получен�
         const res = await session.run('MATCH (n1) '+
         'MATCH (n2) '+
         'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
-        'AND n1.UserId = $userId '+
-        'AND n2.UserId = $userId1 '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
         'RETURN COUNT(*)',{
+                userId: userId,
+                userId1: userId1
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getCountGenerationalCoincidences = async (userId, userId1) => { // получение количества совпадений на поколениях
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n1) '+
+        'MATCH (n2) '+
+        'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
+        'RETURN COUNT(DISTINCT n1.generation)',{
                 userId: userId,
                 userId1: userId1
             }
@@ -339,5 +360,6 @@ export default {
     getOtherTrees,
     getFullName,
     getCountAllNodeInTree,
-    getCountMatchingNodeInTree
+    getCountMatchingNodeInTree,
+    getCountGenerationalCoincidences
 }
