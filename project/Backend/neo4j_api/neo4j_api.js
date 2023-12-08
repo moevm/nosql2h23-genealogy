@@ -251,6 +251,7 @@ let getAllId = async (userId) => { // получение всех id дерев�
     session.close();
 }
 
+
 let exportInfo = async (userId) => { // получение всех id дерева
     let session = driver.session();
     try{
@@ -264,6 +265,56 @@ let exportInfo = async (userId) => { // получение всех id дере�
           })
         return jsonResult
     }
+      catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getMaxGeneration = async (userId) => { // получение наибольшего поколения
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId or elementid(N) = $userId ' +
+            'RETURN MAX(N.generation)',{
+                userId: userId
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getAmountInGenration = async (userId, gen) => { // получение количества узлов в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getMaleAmount = async (userId, gen) => { // получение количества мужчин в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen and N.gender = "М" ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen,
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
     catch(err){
         console.error(err);
     }
@@ -271,6 +322,42 @@ let exportInfo = async (userId) => { // получение всех id дере�
 }
 
 
+let getPairsAmount = async (userId, gen) => { // получение количества пар в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N)-[:HUSBAND]->(m) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getAvgAge = async (userId, gen) => { // получение среднего возраста в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN AVG(CASE (N.dateOfDeath IS NULL) ' +
+            '  WHEN TRUE THEN datetime().year - N.dateOfBirth.year ' +
+            '  ELSE N.dateOfDeath.year - N.dateOfBirth.year ' +
+            'END)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0]
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
 
 export default {
     get_users,
@@ -287,5 +374,10 @@ export default {
     getTreeByUserId,
     getUserInfo,
     getAllId,
-    exportInfo
+    exportInfo,
+    getMaxGeneration,
+    getAmountInGenration,
+    getMaleAmount,
+    getPairsAmount,
+    getAvgAge
 }

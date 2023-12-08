@@ -103,4 +103,22 @@ router.post('/create_relation', async(req, res, next) => {
     res.status(200).send("Relation created")
 })
 
+router.get('/getStatistics/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+
+    let result = []
+    let max_gen = await neo4j_api.getMaxGeneration(id);
+    for (let i = 0; i <= max_gen; i++){
+        let amount = await neo4j_api.getAmountInGenration(id, i);
+        let males = await neo4j_api.getMaleAmount(id, i);
+        let females = amount - males;
+        let pairs = await neo4j_api.getPairsAmount(id, i);
+        let ages = await neo4j_api.getAvgAge(id, i);
+        //console.log({generation: i, amount_in_generation: amount, male: males, female: females, average_age: ages, pair_amount: pairs})
+        result.push({generation: i, amount_in_generation: amount, male: males, female: females, average_age: ages, pair_amount: pairs})
+    }
+
+    res.status(200).send(result)
+})
+
 export default router
