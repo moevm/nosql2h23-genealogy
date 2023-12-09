@@ -284,7 +284,7 @@ export default {
      await getProfileInfo()
     })
     const getProfileInfo = async () => {
-      const res = await fetch(`http://localhost:3000/get_user_info/${store.userId}`)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/get_user_info/${store.userId}`)
       let info_json = await res.json()
       console.log(info_json)
       name.value = info_json.name;

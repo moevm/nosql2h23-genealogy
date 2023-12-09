@@ -99,27 +99,10 @@ export default{
       },
     })
     onMounted(async () => {
-      const res = await fetch(`http://localhost:3000/get_tree/${store.userId}`)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/get_tree/${store.userId}`)
       treeInfo.value  = await res.json()
       generateGraph()
     })
-    /*const nodes = {
-      node0: { name: "Пётр петрович петров" },
-      node2: { name: "N2" },
-      node3: { name: "N3" },
-      node4: { name: "N4" },
-      node5: { name: "N5" },
-      node6: { name: "N6" },
-    }
-
-    const edges = {
-      edge1: { source: "node0", target: "node2" },
-      edge2: { source: "node2", target: "node3" },
-      edge3: { source: "node2", target: "node4" },
-      edge4: { source: "node4", target: "node5" },
-      edge5: { source: "node5", target: "node4" },
-      edge6: { source: "node4", target: "node6" },
-    }*/
 
     const configs = reactive(initialConfigs)
     const generateGraph = () =>{
