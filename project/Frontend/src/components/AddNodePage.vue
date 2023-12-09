@@ -226,7 +226,7 @@ export default {
         gender: gender.value,
         generation: '1'
       };
-      const res = await fetch(`http://localhost:${store.serverPort}/create_node`, {
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/create_node`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
