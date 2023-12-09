@@ -8,13 +8,7 @@ let get_users = async () => { // просим количество user
     const num_nodes = await session.run('MATCH (n) RETURN n', {
     });
     session.close();
-    console.log("RESULT:");
-    num_nodes.records.forEach((user) =>{
-        console.log(user._fields[0])
-    })
-    console.log(num_nodes.records.length === 0)
     if(num_nodes.records.length === 0){
-     console.log('aafsdfsdg')
      await init_db();
     }
     return (!num_nodes ? [] : num_nodes.records);
