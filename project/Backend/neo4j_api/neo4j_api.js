@@ -251,6 +251,22 @@ let getAllId = async (userId) => { // получение всех id дерев�
     session.close();
 }
 
+let getOtherTrees = async (userId) => { // получение всех других деревьев
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n) WHERE n.UserId <> $userId ' +
+            'RETURN DISTINCT n.UserId',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
 let getMaxGeneration = async (userId) => { // получение наибольшего поколения
     let session = driver.session();
     try{
@@ -266,6 +282,23 @@ let getMaxGeneration = async (userId) => { // получение наиболь�
     }
     session.close();
 }
+
+let getFullName = async (userId) => { // получение ФИО
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n) WHERE elementId(n)= $userId '+
+        'RETURN n.name +'+'\' \''+'+ n.surname + '+'\' \''+' + n.patronymic',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
 let getAmountInGenration = async (userId, gen) => { // получение количества узлов в поколении
     let session = driver.session();
     try{
@@ -282,6 +315,7 @@ let getAmountInGenration = async (userId, gen) => { // получение кол
     }
     session.close();
 }
+
 let getMaleAmount = async (userId, gen) => { // получение количества мужчин в поколении
     let session = driver.session();
     try{
@@ -292,6 +326,45 @@ let getMaleAmount = async (userId, gen) => { // получение количе�
             }
         );
         return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
+let getCountAllNodeInTree = async (userId) => { // получение количества всех узлов
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n)'+
+        'WHERE n.UserId = $userId '+
+        'RETURN COUNT(*)+1',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getCountMatchingNodeInTree = async (userId, userId1) => { // получение количества совпадающих узлов
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n1) '+
+        'MATCH (n2) '+
+        'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
+        'RETURN COUNT(*)',{
+                userId: userId,
+                userId1: userId1
+            }
+        );
+        return res.records
     }
     catch(err){
         console.error(err);
@@ -310,6 +383,28 @@ let getPairsAmount = async (userId, gen) => { // получение количе
         );
         return res.records[0]._fields[0].low
     }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
+let getCountGenerationalCoincidences = async (userId, userId1) => { // получение количества совпадений на поколениях
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n1) '+
+        'MATCH (n2) '+
+        'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
+        'RETURN COUNT(DISTINCT n1.generation)',{
+                userId: userId,
+                userId1: userId1
+            }
+        );
+        return res.records
+          }
     catch(err){
         console.error(err);
     }
@@ -351,6 +446,11 @@ export default {
     getTreeByUserId,
     getUserInfo,
     getAllId,
+    getOtherTrees,
+    getFullName,
+    getCountAllNodeInTree,
+    getCountMatchingNodeInTree,
+    getCountGenerationalCoincidences,
     getMaxGeneration,
     getAmountInGenration,
     getMaleAmount,
