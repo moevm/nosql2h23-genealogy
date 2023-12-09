@@ -269,6 +269,7 @@ let exportInfo = async (userId) => { // получение всех id дере�
         console.error(err);
     }
     session.close();
+}
 
 let getOtherTrees = async (userId) => { // получение всех других деревьев
     let session = driver.session();
@@ -475,5 +476,5 @@ export default {
     getAmountInGenration,
     getMaleAmount,
     getPairsAmount,
-    getAvgAge
+    getAvgAge,
 }

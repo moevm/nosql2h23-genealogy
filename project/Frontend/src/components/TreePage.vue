@@ -181,9 +181,8 @@ export default {
       console.log(selectedFile)
       
     }
-    const handleFileExport = async () => { // Экспорт файла JSON
-      const res = await fetch(`http://localhost:3000/ExportData/${store.userId}`)
-      let data = await res
+    const handleFileExport = async () => { // Экспорт файла JSON `http://localhost:3000/ExportData/${store.userId}`
+      window.open(`http://localhost:3000/ExportData/${store.userId}`, 'database_t.pdf');
     }
 
     const onFileChanged = (e) => { 

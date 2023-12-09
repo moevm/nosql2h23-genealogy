@@ -60,7 +60,7 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
 
 router.get('/ExportData/:id',  async(req, res, next)=> {
     const id = req.params.id;
-    const filePath = path.join(__dirname, 'data', 'test.json')
+    let filePath = path.join(__dirname, 'data', 'database.json')
     let result = await neo4j_api.exportInfo(id);
     console.log(filePath)
     try {
@@ -69,8 +69,11 @@ router.get('/ExportData/:id',  async(req, res, next)=> {
       } catch (error) {
         console.error('Ошибка записи в файл:', error);
       }
-    res.download(filePath)
-    //res.status(200).send(result)
+      let file = await fs.readFile(filePath);
+
+      res.setHeader('Content-Disposition', 'attachment; filename="database.json"');
+      res.setHeader('Content-Type', 'application/json');
+      res.send(file);
 })
 
 router.get('/get_other_trees/:id',  async(req, res, next)=> {
