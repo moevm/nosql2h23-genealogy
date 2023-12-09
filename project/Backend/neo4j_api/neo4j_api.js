@@ -177,11 +177,11 @@ let createRelation = async (relationships)=>{
 }
 
 
-let deleteNode = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let deleteNodeById = async (id) => { // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
     try {
-        const res = await session.run('MATCH (N) WHERE Id(N) = $id\n' +
+        const res = await session.run('MATCH (N) WHERE elementId(N) = $id\n' +
             'DETACH DELETE N', {
             id: id
         });
@@ -231,13 +231,27 @@ let takeAccess = async (userId, observers) => { // передаём id поль�
     return "Access was taken";
 }
 
-let updateUser = async (userId,data) =>{ // передача новых данных по пользователю при редактировании профиля
+let updateUser = async (data) =>{ // передача новых данных по пользователю при редактировании профиля
+    const dateB = data.dateOfBirth.split('-')
+    const dateOfBirthday = new neo4j.Date(+dateB[0], +dateB[1], +dateB[2])
     let session = driver.session();
     try {
-            const res = await session.run('MATCH(N) WHERE Id(N) = $userId ' +
-                'SET N = properties($updateUserData)', {
-                userId: userId,
-                updateUserData: data
+            const res = await session.run('MATCH(N) WHERE elementId(N) = $userId ' +
+                'SET N.gender = $gender,' +
+                'N.name = $name,' +
+                'N.surname = $surname,' +
+                'N.login = $login,' +
+                'N.password = $password,' +
+                'N.patronymic = $patronymic,' +
+                'N.dateOfBirth = $dateOfBirth', {
+                userId: data.userId,
+                gender: data.gender,
+                name: data.name,
+                surname: data.surname,
+                login: data.login,
+                password: data.password,
+                patronymic: data.patronymic,
+                dateOfBirth: dateOfBirthday,
             });
 
     }
@@ -263,18 +277,6 @@ let getTreeByUserId = async (userId) =>{ // передача новых данн
             userId: userId
         });
         return res.records[0]._fields[0]
-        /*const res = await session.run('MATCH path = (N)-[*]-(other) ' +
-        'WHERE elementid(N) = $userId AND NOT type(relationships(path)[0]) = "HAVE_PRIVACY" ' +
-        'WITH relationships(path) AS rels, nodes(path) AS nodes ' +
-        'UNWIND range(0, size(rels) - 1) AS idx ' +
-        'WITH rels[idx] AS rel, nodes[idx] AS start, nodes[idx+1] AS end ' +
-        'WHERE NOT type(rel) = "HAVE_PRIVACY" AND id(start) < id(end) ' +
-        'WITH start, rel, end ' +
-        'ORDER BY start ' +
-        'RETURN COLLECT(DISTINCT {start: start, rel: rel, end: end}) AS result', {
-            userId: userId
-        });
-        return res.records[0]._fields[0]*/
     }
     catch (err) {
         console.error(err);
@@ -298,7 +300,185 @@ let getAllId = async (userId) => { // получение всех id дерев�
     session.close();
 }
 
+let getOtherTrees = async (userId) => { // получение всех других деревьев
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n) WHERE n.UserId <> $userId ' +
+            'RETURN DISTINCT n.UserId',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
 
+let getMaxGeneration = async (userId) => { // получение наибольшего поколения
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId or elementid(N) = $userId ' +
+            'RETURN MAX(N.generation)',{
+                userId: userId
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getFullName = async (userId) => { // получение ФИО
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n) WHERE elementId(n)= $userId '+
+        'RETURN n.name +'+'\' \''+'+ n.surname + '+'\' \''+' + n.patronymic',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getAmountInGenration = async (userId, gen) => { // получение количества узлов в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getMaleAmount = async (userId, gen) => { // получение количества мужчин в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen and N.gender = "М" ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen,
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
+let getCountAllNodeInTree = async (userId) => { // получение количества всех узлов
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n)'+
+        'WHERE n.UserId = $userId '+
+        'RETURN COUNT(*)+1',{
+                userId: userId
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getCountMatchingNodeInTree = async (userId, userId1) => { // получение количества совпадающих узлов
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n1) '+
+        'MATCH (n2) '+
+        'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
+        'RETURN COUNT(*)',{
+                userId: userId,
+                userId1: userId1
+            }
+        );
+        return res.records
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getPairsAmount = async (userId, gen) => { // получение количества пар в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N)-[:HUSBAND]->(m) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
+let getCountGenerationalCoincidences = async (userId, userId1) => { // получение количества совпадений на поколениях
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n1) '+
+        'MATCH (n2) '+
+        'WHERE n1.name = n2.name AND n1.surname = n2.surname AND n1.patronymic = n2.patronymic AND n1.dateOfBirth = n2.dateOfBirth '+
+        'AND (n1.UserId = $userId OR elementId(n1) = $userId) '+
+        'AND (n2.UserId = $userId1 OR elementId(n2) = $userId1) '+
+        'RETURN COUNT(DISTINCT n1.generation)',{
+                userId: userId,
+                userId1: userId1
+            }
+        );
+        return res.records
+          }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getAvgAge = async (userId, gen) => { // получение среднего возраста в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN AVG(CASE (N.dateOfDeath IS NULL) ' +
+            '  WHEN TRUE THEN datetime().year - N.dateOfBirth.year ' +
+            '  ELSE N.dateOfDeath.year - N.dateOfBirth.year ' +
+            'END)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0]
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
 
 export default {
     get_users,
@@ -307,7 +487,7 @@ export default {
     getUserData,
     createNode,
     createRelation,
-    deleteNode,
+    deleteNodeById,
     takeAccess,
     giveAccess,
     updateUser,
@@ -315,5 +495,15 @@ export default {
     getTreeByUserId,
     getUserInfo,
     getAllId,
-    init_db
+    init_db,
+    getOtherTrees,
+    getFullName,
+    getCountAllNodeInTree,
+    getCountMatchingNodeInTree,
+    getCountGenerationalCoincidences,
+    getMaxGeneration,
+    getAmountInGenration,
+    getMaleAmount,
+    getPairsAmount,
+    getAvgAge
 }

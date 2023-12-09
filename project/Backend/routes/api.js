@@ -23,10 +23,23 @@ router.get('/get_user/:login/:password',  async(req, res, next)=> {
     res.status(200).send(result)
 })
 
+router.post('/delete_node',  async(req, res, next)=> {
+    const nodeId = req.body.nodeId;
+    let result = await neo4j_api.deleteNodeById(nodeId);
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
+router.post('/change_user_info',  async(req, res, next)=> {
+        const data = req.body;
+        let result = await neo4j_api.updateUser(data);
+        console.log("RESULT IS", result)
+        res.status(200).send(result)
+    })
 router.get('/get_tree/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let result = await neo4j_api.getTreeByUserId(id);
-    console.log("RESULT IS", result)
+    //console.log("RESULT IS", result)
     res.status(200).send(result)
 })
 
@@ -40,6 +53,21 @@ router.get('/get_user_info/:id',  async(req, res, next)=> {
 router.get('/get_all_id/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let result = await neo4j_api.getAllId(id);
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
+router.get('/get_other_trees/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let UsersId = await neo4j_api.getOtherTrees(id);
+    let result = []
+    for (let i = 0; i < UsersId.length; i++){
+        let fullName = await neo4j_api.getFullName(UsersId[i]._fields[0]);
+        let countAllNodes = await neo4j_api.getCountAllNodeInTree(UsersId[i]._fields[0]);
+        let countMatchingNodes = await neo4j_api.getCountMatchingNodeInTree(id,UsersId[i]._fields[0]);
+        let countGenerationalCoincidences = await neo4j_api.getCountGenerationalCoincidences(id,UsersId[i]._fields[0]);
+        result.push({full_name: fullName[0]._fields[0], amount_in_tree: Number(countAllNodes[0]._fields[0]), amount_of_matches: Number(countMatchingNodes[0]._fields[0]), amount_in_generation: Number(countGenerationalCoincidences[0]._fields[0])})
+    }
     console.log("RESULT IS", result)
     res.status(200).send(result)
 })
@@ -72,6 +100,24 @@ router.post('/create_relation', async(req, res, next) => {
     await neo4j_api.createRelation(relationships);
     // let string = await neo4j_api.set_user();
     res.status(200).send("Relation created")
+})
+
+router.get('/getStatistics/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+
+    let result = []
+    let max_gen = await neo4j_api.getMaxGeneration(id);
+    for (let i = 0; i <= max_gen; i++){
+        let amount = await neo4j_api.getAmountInGenration(id, i);
+        let males = await neo4j_api.getMaleAmount(id, i);
+        let females = amount - males;
+        let pairs = await neo4j_api.getPairsAmount(id, i);
+        let ages = await neo4j_api.getAvgAge(id, i);
+        //console.log({generation: i, amount_in_generation: amount, male: males, female: females, average_age: ages, pair_amount: pairs})
+        result.push({generation: i, amount_in_generation: amount, male: males, female: females, average_age: ages, pair_amount: pairs})
+    }
+
+    res.status(200).send(result)
 })
 
 export default router

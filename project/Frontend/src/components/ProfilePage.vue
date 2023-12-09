@@ -20,6 +20,7 @@
             <v-btn
               min-width="350px"
               class="green-button mt-7 ml-5"
+              @click="changeProfile"
             >
               Сохранить
             </v-btn>
@@ -28,7 +29,7 @@
             <v-btn
               min-width="350px"
               class="white-button mt-5 ml-5"
-              @click="changeFlag = !changeFlag"
+              @click="closeChanges"
             >
               Назад
             </v-btn>
@@ -122,7 +123,7 @@
           </v-col>
           <v-col>
             <p class="blue-color">
-              {{ password }}
+              {{ secretPassword }}
             </p>
           </v-col>
         </v-row>
@@ -144,6 +145,7 @@
               density="compact"
               variant="outlined"
               v-model="name"
+              :rules="[notEmptyField]"
             />
           </v-col>
         </v-row>
@@ -159,6 +161,7 @@
               density="compact"
               variant="outlined"
               v-model="surname"
+              :rules="[notEmptyField]"
             />
           </v-col>
         </v-row>
@@ -191,6 +194,7 @@
               density="compact"
               variant="outlined"
               type="date"
+              :rules="[notEmptyField]"
             />
           </v-col>
         </v-row>
@@ -225,6 +229,7 @@
               density="compact"
               class="dark-white-input"
               variant="outlined"
+              :rules="[notEmptyField, LoginFormat]"
             />
           </v-col>
         </v-row>
@@ -236,10 +241,14 @@
           </v-col>
           <v-col>
             <v-text-field
+              :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="visible ? 'text' : 'password'"
               v-model="password"
               class="dark-white-input"
               density="compact"
               variant="outlined"
+              :rules="[notEmptyField, PasswordFormat]"
+              @click:append-inner="visible = !visible"
             />
           </v-col>
         </v-row>
@@ -254,7 +263,7 @@
 
 <script>
 import MainNavigation from "@/components/UI/MainNavigation.vue";
-import {ref, onMounted} from "vue";
+import {ref, onMounted, computed} from "vue";
 import {useAppStore} from "@/store/app";
 
 export default {
@@ -262,6 +271,7 @@ export default {
   components: {MainNavigation},
   setup() {
     const store = useAppStore()
+    const visible = ref(false)
     const changeFlag = ref(false)
     const name = ref('')
     const surname = ref('')
@@ -269,18 +279,64 @@ export default {
     const date = ref('')
     const gender = ref('')
     const login = ref('')
-    const password = ref("********")
+    const password = ref('')
     onMounted(async () => {
+     await getProfileInfo()
+    })
+    const getProfileInfo = async () => {
       const res = await fetch(`http://${store.domain}:${store.serverPort}/get_user_info/${store.userId}`)
       let info_json = await res.json()
       console.log(info_json)
       name.value = info_json.name;
       surname.value = info_json.surname;
       patronymic.value = info_json.patronymic;
-      date.value = info_json.dateOfBirth.day.low + '-' + info_json.dateOfBirth.month.low + '-' + info_json.dateOfBirth.year.low;
+      date.value = info_json.dateOfBirth.year.low + '-' + info_json.dateOfBirth.month.low + '-' + info_json.dateOfBirth.day.low;
       gender.value = info_json.gender;
       login.value = info_json.login;
+      password.value = info_json.password
+    }
+    const notEmptyField = (v) => {
+      return !!v || 'Поле должно быть заполнено!'
+    }
+    const LoginFormat = (v) => {
+      const loginRegex = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/
+      return loginRegex.test(v) || 'Логин должен начинаться с латиницы и быть не более 20 знаков(используя только латиницу и цифры)!'
+    }
+    const PasswordFormat = (v) => {
+      const passwordRegex = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/
+      return passwordRegex.test(v) || 'Пароль должен содержать строчные и прописные латинские буквы, цифры, спецсимволы. Минимум 8 символов!)!'
+    }
+    const closeChanges =  () => {
+      changeFlag.value = !changeFlag.value
+      getProfileInfo()
+    }
+    const secretPassword = computed(() => {
+      return '*'.repeat(password.value.length)
     })
+    const changeProfile = async () => {
+      if(notEmptyField(name.value) && notEmptyField(surname.value) && notEmptyField(date.value)
+      && notEmptyField(login.value) && notEmptyField(password.value)
+        && LoginFormat(login.value) && PasswordFormat(password.value)){
+        const data = {
+          userId: store.userId,
+          dateOfBirth: date.value,
+          gender: gender.value,
+          login: login.value,
+          name: name.value,
+          surname: surname.value,
+          password: password.value,
+          patronymic: patronymic.value,
+        }
+        const res = await fetch(`http://localhost:3000/change_user_info`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify(data)
+        })
+        closeChanges()
+      }
+    }
     return {
       changeFlag,
       name,
@@ -289,7 +345,14 @@ export default {
       date,
       gender,
       login,
-      password
+      password,
+      visible,
+      secretPassword,
+      notEmptyField,
+      LoginFormat,
+      PasswordFormat,
+      closeChanges,
+      changeProfile
     }
   }
 }

@@ -224,7 +224,7 @@ export default {
         dateOfBirth: `${dateOfBirth.value}`,
         dateOfDeath: `${dateOfDeath.value}`,
         gender: gender.value,
-        generation: '1'
+        generation: 1
       };
       const res = await fetch(`http://${store.domain}:${store.serverPort}/create_node`, {
         method: 'POST',
