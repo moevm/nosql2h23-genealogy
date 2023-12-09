@@ -20,7 +20,6 @@ app.use(Routes)
 
 const PORT = process.env.PORT ?? 3000
 app.listen(PORT ,async () => {
- // await neo4j_api.init_db();
-    console.log(await neo4j_api.get_users())   
+    await neo4j_api.get_users()   
     console.log(`Server has been started on port ${PORT}`)
 })
