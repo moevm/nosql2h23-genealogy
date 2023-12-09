@@ -267,6 +267,22 @@ let getOtherTrees = async (userId) => { // получение всех друг�
     session.close();
 }
 
+let getMaxGeneration = async (userId) => { // получение наибольшего поколения
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE N.UserId = $userId or elementid(N) = $userId ' +
+            'RETURN MAX(N.generation)',{
+                userId: userId
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
 let getFullName = async (userId) => { // получение ФИО
     let session = driver.session();
     try{
@@ -282,6 +298,41 @@ let getFullName = async (userId) => { // получение ФИО
     }
     session.close();
 }
+
+let getAmountInGenration = async (userId, gen) => { // получение количества узлов в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getMaleAmount = async (userId, gen) => { // получение количества мужчин в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen and N.gender = "М" ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen,
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
 
 let getCountAllNodeInTree = async (userId) => { // получение количества всех узлов
     let session = driver.session();
@@ -321,6 +372,24 @@ let getCountMatchingNodeInTree = async (userId, userId1) => { // получен�
     session.close();
 }
 
+let getPairsAmount = async (userId, gen) => { // получение количества пар в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N)-[:HUSBAND]->(m) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN COUNT(N)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0].low
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
 let getCountGenerationalCoincidences = async (userId, userId1) => { // получение количества совпадений на поколениях
     let session = driver.session();
     try{
@@ -335,6 +404,26 @@ let getCountGenerationalCoincidences = async (userId, userId1) => { // полу�
             }
         );
         return res.records
+          }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+let getAvgAge = async (userId, gen) => { // получение среднего возраста в поколении
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (N) WHERE (N.UserId = $userId or elementid(N) = $userId) and N.generation = $gen ' +
+            'RETURN AVG(CASE (N.dateOfDeath IS NULL) ' +
+            '  WHEN TRUE THEN datetime().year - N.dateOfBirth.year ' +
+            '  ELSE N.dateOfDeath.year - N.dateOfBirth.year ' +
+            'END)',{
+                userId: userId,
+                gen: gen
+            }
+        );
+        return res.records[0]._fields[0]
     }
     catch(err){
         console.error(err);
@@ -361,5 +450,10 @@ export default {
     getFullName,
     getCountAllNodeInTree,
     getCountMatchingNodeInTree,
-    getCountGenerationalCoincidences
+    getCountGenerationalCoincidences,
+    getMaxGeneration,
+    getAmountInGenration,
+    getMaleAmount,
+    getPairsAmount,
+    getAvgAge
 }
