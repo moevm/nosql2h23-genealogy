@@ -12,9 +12,63 @@ let get_users = async () => { // просим количество user
     num_nodes.records.forEach((user) =>{
         console.log(user._fields[0])
     })
-
+    console.log(num_nodes.records.length === 0)
+    if(num_nodes.records.length === 0){
+     console.log('aafsdfsdg')
+     await init_db();
+    }
     return (!num_nodes ? [] : num_nodes.records);
 };
+
+let init_db = async () => {
+    let session = driver.session();
+    const firstQuery = await session.run('CREATE(N:Relative {login: \'zevsCool228\', password: "Zevs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Зевс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {
+    });
+    await session.run('MATCH(N) WHERE Id(N) = 0' +
+        '    CREATE(R:Relative {dateOfBirth: date("1001-08-15"), dateOfDeath: date("1600-10-11"), gender: "М", generation: 0, name: \'Кронос\', oldest: true, surname: \'Греков\', patronymic: \'Криевич\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 0\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1002-07-13"), dateOfDeath: date("1605-05-22"), gender: "Ж", generation: 0, name: \'Рея\', oldest: true, surname: \'Грекова\', patronymic: \'Титанидова\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 0\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1512-07-13"), gender: "Ж", generation: 1, name: \'Гера\', oldest: false, surname: \'Грекова\', patronymic: \'Кроносовична\', UserId: elementId(N) });',{})
+    await session.run(        'MATCH(N) WHERE Id(N) = 0' +
+        '    CREATE(R:Relative {dateOfBirth: date("1700-02-15"), gender: "М", generation: 2, name: \'Гефест\', oldest: false, surname: \'Греков\', patronymic: \'Зевсович\', UserId: elementId(N) });',{})
+    await session.run(   '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 0 AND Id(R) = 4\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run ('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 1 AND Id(R) = 0\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run( '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 1 AND Id(R) = 3\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 2 AND Id(R) = 0\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 2 AND Id(R) = 3\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 1 AND Id(R) = 2\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 0 AND Id(R) = 3\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 4 AND Id(R) = 3\n' +
+        '    CREATE(N)-[:SON]->(R)\n' +
+        '    CREATE(R)-[:MOTHER]->(N);',{})
+    session.close();
+    console.log("RESULT:");
+
+    return (!firstQuery ? [] : firstQuery.records);
+}
 
 let getUserByLogin = async (login) => { //получаем пользователя по логину для регистрации или авторизации
     let session = driver.session();
@@ -29,10 +83,11 @@ let getUserByLogin = async (login) => { //получаем пользовате�
 }
 let getUserByLoginPassword = async (login,password) => {
     let session = driver.session();
-    const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
+    /*const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
         login: login,
         password: password
-    });
+    });*/
+    const res = await session.run('MATCH (N) RETURN N',{});
     session.close();
     return res.records[0]?._fields[0] || {};
 }
@@ -265,5 +320,6 @@ export default {
     getUserByLoginPassword,
     getTreeByUserId,
     getUserInfo,
-    getAllId
+    getAllId,
+    init_db
 }

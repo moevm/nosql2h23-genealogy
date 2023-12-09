@@ -2,6 +2,7 @@ import express, {urlencoded} from 'express'
 import cors from 'cors'
 import bodyParser from "body-parser";
 import Routes from './routes/api.js'
+import neo4j_api from "./neo4j_api/neo4j_api.js";
 const app = express()
 
 app.use(function (req, res, next) {
@@ -18,6 +19,8 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(Routes)
 
 const PORT = process.env.PORT ?? 3000
-app.listen(PORT ,() => {
+app.listen(PORT ,async () => {
+ // await neo4j_api.init_db();
+    console.log(await neo4j_api.get_users())   
     console.log(`Server has been started on port ${PORT}`)
 })
