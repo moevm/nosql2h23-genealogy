@@ -101,6 +101,7 @@ export default {
     MainNavigation
   },
   setup() {
+    const xhr = new XMLHttpRequest();
     const uploader = ref(null)
     const search = ref("")
     const selectedFile = ref(null)
@@ -178,10 +179,12 @@ export default {
 
     const handleFileImport = () => { // Импорт файла JSON
       uploader.value.click()// Trigger click on the FileInput
-      console.log(selectedFile)
-      
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      axios.post(`/ImportData/${store.userId}`, formData) //Вот эта вещь не работает, не понимаю как её сделать
     }
-    const handleFileExport = async () => { // Экспорт файла JSON `http://localhost:3000/ExportData/${store.userId}`
+
+    const handleFileExport = async () => { // Экспорт файла JSON
       window.open(`http://localhost:3000/ExportData/${store.userId}`, 'database_t.pdf');
     }
 

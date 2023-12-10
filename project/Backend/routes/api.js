@@ -2,6 +2,7 @@ import {Router} from 'express'
 import path from 'path'
 import neo4j_api from "../neo4j_api/neo4j_api.js";
 import fs from 'fs/promises';
+import { existsSync } from 'node:fs';
 const router = Router()
 
 const __dirname = path.resolve()
@@ -61,19 +62,25 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
 router.get('/ExportData/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let filePath = path.join(__dirname, 'data', 'database.json')
+    if (!existsSync(path.join(__dirname, 'data')))
+        fs.mkdir(path.join(__dirname, 'data'))
     let result = await neo4j_api.exportInfo(id);
-    console.log(filePath)
     try {
-        await fs.writeFile(filePath, JSON.stringify(result, null, 2), { flag: 'w' });
+        await fs.writeFile(filePath, JSON.stringify(result, null, 2));
         console.log('Данные успешно записаны в файл');
       } catch (error) {
         console.error('Ошибка записи в файл:', error);
       }
-      let file = await fs.readFile(filePath);
+    let file = await fs.readFile(filePath);
 
-      res.setHeader('Content-Disposition', 'attachment; filename="database.json"');
-      res.setHeader('Content-Type', 'application/json');
-      res.send(file);
+    res.setHeader('Content-Disposition', 'attachment; filename="database.json"');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(file);
+})
+
+router.post('/ImportData/:id',  async(req, res, next)=> {
+    let file = req.file.JSON
+    console.log(req.params.id)
 })
 
 router.get('/get_other_trees/:id',  async(req, res, next)=> {
