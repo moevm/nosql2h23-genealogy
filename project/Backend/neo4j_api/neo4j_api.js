@@ -77,11 +77,10 @@ let getUserByLogin = async (login) => { //получаем пользовате�
 }
 let getUserByLoginPassword = async (login,password) => {
     let session = driver.session();
-    /*const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
+    const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
         login: login,
         password: password
-    });*/
-    const res = await session.run('MATCH (N) RETURN N',{});
+    });
     session.close();
     return res.records[0]?._fields[0] || {};
 }
