@@ -92,7 +92,6 @@ import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
 import DeleteDialog from "@/components/UI/DeleteDialog.vue";
-import fs from 'fs/promises';
 
 export default {
   name: 'treePage',
@@ -179,24 +178,38 @@ export default {
 
     const handleFileImport = () => { // Импорт файла JSON
       uploader.value.click()// Trigger click on the FileInput
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      axios.post(`/ImportData/${store.userId}`, formData) //Вот эта вещь не работает, не понимаю как её сделать
+      //const res = await fetch(`http://${store.domain}:${store.serverPort}/get_tree/${store.userId}`)
     }
 
     const handleFileExport = async () => { // Экспорт файла JSON
-      window.open(`http://localhost:3000/ExportData/${store.userId}`, 'database_t.pdf');
+      window.open(`http://${store.domain}:${store.serverPort}/ExportData/${store.userId}`, 'database.pdf');
     }
 
-    const onFileChanged = (e) => { 
-      selectedFile.value = e.target.files[0];
-      // Opening File
+    const sendData = (e) =>{
+      console.log(e)
+      const res = fetch(`http://${store.domain}:${store.serverPort}/ImportData/${store.userId}`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(e)
+      })
     }
+
+    const onFileChanged = (e) => {   
+      let fr = new FileReader()    
+      fr.readAsText(e.target.files[0])
+      fr.onload = function (e) {
+        let data = e.target.result
+        sendData(JSON.parse(data))
+      }
+    }
+    
     const deleteNode = async (nodeId) => {
       const data = {
         nodeId: nodeId
       }
-      const res = await fetch(`http://localhost:3000/delete_node`,{
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/delete_node`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8'
