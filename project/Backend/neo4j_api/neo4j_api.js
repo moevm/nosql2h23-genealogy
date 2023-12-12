@@ -16,8 +16,7 @@ let get_users = async () => { // просим количество user
 
 let init_db = async () => {
     let session = driver.session();
-    const firstQuery = await session.run('CREATE(N:Relative {login: \'zevsCool228\', password: "Zevs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Зевс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {
-    });
+    const firstQuery = await session.run('CREATE(N:Relative {login: \'zevsCool228\', password: "Zevs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Зевс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {});
     await session.run('MATCH(N) WHERE Id(N) = 0' +
         '    CREATE(R:Relative {dateOfBirth: date("1001-08-15"), dateOfDeath: date("1600-10-11"), gender: "М", generation: 0, name: \'Кронос\', oldest: true, surname: \'Греков\', patronymic: \'Криевич\', UserId: elementId(N) });',{})
     await session.run(        '    MATCH(N) WHERE Id(N) = 0\n' +
@@ -58,6 +57,134 @@ let init_db = async () => {
         '    WHERE Id(N) = 4 AND Id(R) = 3\n' +
         '    CREATE(N)-[:SON]->(R)\n' +
         '    CREATE(R)-[:MOTHER]->(N);',{})
+
+    await session.run('CREATE(N:Relative {login: \'nevsCool228\', password: "Nevs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Невс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {});
+    await session.run('MATCH(N) WHERE Id(N) = 5' +
+        '    CREATE(R:Relative {dateOfBirth: date("1001-08-15"), dateOfDeath: date("1600-10-11"), gender: "М", generation: 0, name: \'Нронос\', oldest: true, surname: \'Греков\', patronymic: \'Криевич\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 5\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1002-07-13"), dateOfDeath: date("1605-05-22"), gender: "Ж", generation: 0, name: \'Нея\', oldest: true, surname: \'Грекова\', patronymic: \'Титанидова\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 5\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1512-07-13"), gender: "Ж", generation: 1, name: \'Нера\', oldest: false, surname: \'Грекова\', patronymic: \'Кроносовична\', UserId: elementId(N) });',{})
+    await session.run(        'MATCH(N) WHERE Id(N) = 5' +
+        '    CREATE(R:Relative {dateOfBirth: date("1700-02-15"), gender: "М", generation: 2, name: \'Нефест\', oldest: false, surname: \'Греков\', patronymic: \'Зевсович\', UserId: elementId(N) });',{})
+    await session.run(   '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 5 AND Id(R) = 9\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run ('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 6 AND Id(R) = 5\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run( '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 6 AND Id(R) = 8\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 7 AND Id(R) = 5\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 7 AND Id(R) = 8\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 6 AND Id(R) = 7\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 5 AND Id(R) = 8\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 9 AND Id(R) = 8\n' +
+        '    CREATE(N)-[:SON]->(R)\n' +
+        '    CREATE(R)-[:MOTHER]->(N);',{})
+    
+
+    await session.run('CREATE(N:Relative {login: \'revsCool228\', password: "Revs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Ревс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {});
+    await session.run('MATCH(N) WHERE Id(N) = 10' +
+        '    CREATE(R:Relative {dateOfBirth: date("1001-08-15"), dateOfDeath: date("1600-10-11"), gender: "М", generation: 0, name: \'Рронос\', oldest: true, surname: \'Греков\', patronymic: \'Криевич\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 10\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1002-07-13"), dateOfDeath: date("1605-05-22"), gender: "Ж", generation: 0, name: \'Рея\', oldest: true, surname: \'Грекова\', patronymic: \'Титанидова\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 10\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1512-07-13"), gender: "Ж", generation: 1, name: \'Рера\', oldest: false, surname: \'Грекова\', patronymic: \'Кроносовична\', UserId: elementId(N) });',{})
+    await session.run(        'MATCH(N) WHERE Id(N) = 10' +
+        '    CREATE(R:Relative {dateOfBirth: date("1700-02-15"), gender: "М", generation: 2, name: \'Рефест\', oldest: false, surname: \'Греков\', patronymic: \'Зевсович\', UserId: elementId(N) });',{})
+    await session.run(   '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 10 AND Id(R) = 14\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run ('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 11 AND Id(R) = 10\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run( '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 11 AND Id(R) = 13\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 12 AND Id(R) = 10\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 12 AND Id(R) = 13\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 11 AND Id(R) = 12\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 10 AND Id(R) = 13\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 14 AND Id(R) = 13\n' +
+        '    CREATE(N)-[:SON]->(R)\n' +
+        '    CREATE(R)-[:MOTHER]->(N);',{})
+
+    await session.run('CREATE(N:Relative {login: \'yevsCool228\', password: "Yevs322Cool!", dateOfBirth: date("1500-12-22"), gender: "М", generation: 1, name: \'Зевс\', oldest: false, surname: \'Греков\', patronymic: \'Кроносович\' });', {});
+    await session.run('MATCH(N) WHERE Id(N) = 15' +
+        '    CREATE(R:Relative {dateOfBirth: date("1001-08-15"), dateOfDeath: date("1600-10-11"), gender: "М", generation: 0, name: \'Кронос\', oldest: true, surname: \'Греков\', patronymic: \'Криевич\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 15\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1002-07-13"), dateOfDeath: date("1605-05-22"), gender: "Ж", generation: 0, name: \'Рея\', oldest: true, surname: \'Грекова\', patronymic: \'Титанидова\', UserId: elementId(N) });',{})
+    await session.run(        '    MATCH(N) WHERE Id(N) = 15\n' +
+        '    CREATE(R:Relative {dateOfBirth: date("1512-07-13"), gender: "Ж", generation: 1, name: \'Гера\', oldest: false, surname: \'Грекова\', patronymic: \'Кроносовична\', UserId: elementId(N) });',{})
+    await session.run(        'MATCH(N) WHERE Id(N) = 15' +
+        '    CREATE(R:Relative {dateOfBirth: date("1700-02-15"), gender: "М", generation: 2, name: \'Гефест\', oldest: false, surname: \'Греков\', patronymic: \'Зевсович\', UserId: elementId(N) });',{})
+    await session.run(   '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 15 AND Id(R) = 19\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run ('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 16 AND Id(R) = 15\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run( '    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 16 AND Id(R) = 18\n' +
+        '    CREATE(N)-[:FATHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 17 AND Id(R) = 15\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:SON]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 17 AND Id(R) = 18\n' +
+        '    CREATE(N)-[:MOTHER]->(R)\n' +
+        '    CREATE(R)-[:DAUGHTER]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 16 AND Id(R) = 17\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 15 AND Id(R) = 18\n' +
+        '    CREATE(N)-[:HUSBAND]->(R)\n' +
+        '    CREATE(R)-[:WIFE]->(N);\n',{})
+    await session.run('    MATCH(N),(R)\n' +
+        '    WHERE Id(N) = 19 AND Id(R) = 18\n' +
+        '    CREATE(N)-[:SON]->(R)\n' +
+        '    CREATE(R)-[:MOTHER]->(N);',{})
+
     session.close();
     console.log("RESULT:");
 
