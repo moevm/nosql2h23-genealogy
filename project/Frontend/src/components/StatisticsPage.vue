@@ -43,7 +43,7 @@ export default {
     })
 
     const getStatistics = async () => {
-      const res = await fetch(`http://localhost:3000/getStatistics/${userId}`)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/getStatistics/${userId}`)
       displaing_data.value = await res.json()
     }
 

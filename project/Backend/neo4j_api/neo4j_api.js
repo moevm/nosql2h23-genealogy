@@ -77,11 +77,11 @@ let getUserByLogin = async (login) => { //получаем пользовате�
 }
 let getUserByLoginPassword = async (login,password) => {
     let session = driver.session();
-    /*const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
+    const res = await session.run('MATCH (n) WHERE n.login = $login AND n.password = $password RETURN n', {
         login: login,
         password: password
-    });*/
-    const res = await session.run('MATCH (N) RETURN N',{});
+    });
+    //const res = await session.run('MATCH (N) RETURN N',{});
     session.close();
     return res.records[0]?._fields[0] || {};
 }
@@ -321,7 +321,7 @@ let exportInfo = async (userId) => { // получение всех id дере�
     session.close();
 }
 
-let ImportInfo = (userId, first_node, relation, second_node) => { // получение всех id дерева
+let ImportInfo = async (userId, first_node, relation, second_node) => { // получение всех id дерева
 
     let node_info1 = {
         userId: userId,
@@ -352,37 +352,45 @@ let ImportInfo = (userId, first_node, relation, second_node) => { // получ�
     if (second_node.dateOfDeath !== undefined)
         node_info2.dateOfDeath = new neo4j.Date(+second_node.dateOfDeath.year.low, +second_node.dateOfDeath.month.low, +second_node.dateOfDeath.day.low)
 
-    let session = driver.session();
+    
     try{
+        let session = driver.session();
         if (node_info1.dateOfDeath !== undefined){
-            session.run('MERGE (n:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, dateOfDeath: $node1.dateOfDeath, generation: toInteger($node1.generation), oldest: $node1.oldest})\n',{
+            await session.run('MERGE (n:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, dateOfDeath: $node1.dateOfDeath, generation: toInteger($node1.generation), oldest: $node1.oldest})\n',{
                 node1: node_info1
             });}
         else{
-            session.run('MERGE (n:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, generation: toInteger($node1.generation), oldest: $node1.oldest})\n',{
+            await session.run('MERGE (n:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, generation: toInteger($node1.generation), oldest: $node1.oldest})\n',{
                 node1: node_info1
             });
         }
+
+        session.close();
+        session = driver.session();
             
         if (node_info2.dateOfDeath !== undefined){
-            session.run('MERGE (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, dateOfDeath: $node2.dateOfDeath, generation: toInteger($node2.generation), oldest: $node2.oldest})\n',{
+            await session.run('MERGE (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, dateOfDeath: $node2.dateOfDeath, generation: toInteger($node2.generation), oldest: $node2.oldest})\n',{
                 node2: node_info2
         });}
         else{
-            session.run('MERGE (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, generation: toInteger($node2.generation), oldest: $node2.oldest})\n',{
+            await session.run('MERGE (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, generation: toInteger($node2.generation), oldest: $node2.oldest})\n',{
                 node2: node_info2
             });
         }
-        session.run('MATCH (p:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, dateOfDeath: $node1.dateOfDeath, generation: $node1.generation, oldest: $node1.oldest}), (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, dateOfDeath: $node2.dateOfDeath, generation: $node2.generation, oldest: $node2.oldest})\n' +
+
+        session.close();
+        session = driver.session();
+
+        await session.run('MATCH (p:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, dateOfDeath: $node1.dateOfDeath, generation: $node1.generation, oldest: $node1.oldest}), (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, dateOfDeath: $node2.dateOfDeath, generation: $node2.generation, oldest: $node2.oldest})\n' +
         'MERGE (p)-[:'+relation+']->(m)\n',{
             node1: node_info1,
             node2: node_info2
         });
+        session.close();
     }
       catch(err){
         console.error(err);
     }
-    session.close();
 }
 
 let getOtherTrees = async (userId) => { // получение всех других деревьев

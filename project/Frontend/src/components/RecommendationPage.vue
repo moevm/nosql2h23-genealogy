@@ -43,7 +43,7 @@
         await getOtherTrees()
       })
       const getOtherTrees = async () => {
-        const res = await fetch(`http://localhost:3000/get_other_trees/${store.userId}`)
+        const res = await fetch(`http://${store.domain}:${store.serverPort}/get_other_trees/${store.userId}`)
         displaing_data.value = await res.json()
       }
       headers = [

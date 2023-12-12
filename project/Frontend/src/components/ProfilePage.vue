@@ -327,7 +327,7 @@ export default {
           password: password.value,
           patronymic: patronymic.value,
         }
-        const res = await fetch(`http://localhost:3000/change_user_info`, {
+        const res = await fetch(`http://${store.domain}:${store.serverPort}/change_user_info`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json;charset=utf-8'
