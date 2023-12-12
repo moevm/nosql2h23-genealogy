@@ -449,7 +449,6 @@ let exportInfo = async (userId) => { // получение всех id дере�
 }
 
 let ImportInfo = async (userId, first_node, relation, second_node) => { // получение всех id дерева
-
     let node_info1 = {
         userId: userId,
         gender: first_node.gender,
@@ -507,8 +506,7 @@ let ImportInfo = async (userId, first_node, relation, second_node) => { // по�
 
         session.close();
         session = driver.session();
-
-        await session.run('MATCH (p:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth, dateOfDeath: $node1.dateOfDeath, generation: $node1.generation, oldest: $node1.oldest}), (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, dateOfDeath: $node2.dateOfDeath, generation: $node2.generation, oldest: $node2.oldest})\n' +
+        await session.run('MATCH (p:Relative {UserId: $node1.userId, gender: $node1.gender, name: $node1.name, surname: $node1.surname, patronymic: $node1.patronymic, dateOfBirth: $node1.dateOfBirth,'+ (node_info1.dateOfDeath!==undefined ? ' dateOfDeath: $node1.dateOfDeath,' : '') +' generation: $node1.generation, oldest: $node1.oldest}), (m:Relative {UserId: $node2.userId, gender: $node2.gender, name: $node2.name, surname: $node2.surname, patronymic: $node2.patronymic, dateOfBirth: $node2.dateOfBirth, '+ (node_info2.dateOfDeath!==undefined ? ' dateOfDeath: $node2.dateOfDeath,' : '') +' generation: $node2.generation, oldest: $node2.oldest})\n' +
         'MERGE (p)-[:'+relation+']->(m)\n',{
             node1: node_info1,
             node2: node_info2
@@ -728,5 +726,4 @@ export default {
     getMaleAmount,
     getPairsAmount,
     getAvgAge,
-
 }

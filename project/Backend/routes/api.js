@@ -82,9 +82,15 @@ router.get('/ExportData/:id',  async(req, res, next)=> {
 router.post('/ImportData/:id',  async(req, res, next)=> {
     let id = req.params.id
     let data = req.body
-    data.forEach(element => {
-        let result = neo4j_api.ImportInfo(id, element[0], element[1], element[2]);
-    });
+    let len = data.length
+    let i= 0
+
+    for (let i=0; i<len; i++){
+        let element = data[i]
+        let result = await neo4j_api.ImportInfo(id, element[0], element[1], element[2]);
+    }
+
+
     res.status(200).send("Database imported")
 })
 
