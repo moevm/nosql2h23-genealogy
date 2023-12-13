@@ -29,7 +29,7 @@
       <v-btn
         class="ml-16"
         append-icon="mdi-database-export"
-        @click="handleFileImport"
+        @click="handleFileExport"
       >
         Экспорт
       </v-btn>
@@ -92,6 +92,7 @@ import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
 import DeleteDialog from "@/components/UI/DeleteDialog.vue";
+
 export default {
   name: 'treePage',
   components: {
@@ -99,7 +100,7 @@ export default {
     MainNavigation
   },
   setup() {
-
+    const xhr = new XMLHttpRequest();
     const uploader = ref(null)
     const search = ref("")
     const selectedFile = ref(null)
@@ -175,20 +176,41 @@ export default {
       {title: '', align: 'center', key: 'btn'},
     ]
 
-    const handleFileImport = () => {
-      uploader.value.click()
-      // Trigger click on the FileInput
+    const handleFileImport = () => { // Импорт файла JSON
+      uploader.value.click()// Trigger click on the FileInput
+      //const res = await fetch(`http://${store.domain}:${store.serverPort}/get_tree/${store.userId}`)
     }
-    const onFileChanged = (e) => {
-      selectedFile.value = e.target.files[0];
 
-      // Do whatever you need with the file, liek reading it with FileReader
+    const handleFileExport = async () => { // Экспорт файла JSON
+      window.open(`http://${store.domain}:${store.serverPort}/ExportData/${store.userId}`, 'database.pdf');
     }
+
+    const sendData = async (e) =>{
+      console.log(e)
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/ImportData/${store.userId}`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(e)
+      })
+    }
+
+    const onFileChanged = (e) => {   
+      let fr = new FileReader()    
+      fr.readAsText(e.target.files[0])
+      fr.onload = async function (e) {
+        let data = e.target.result
+        await sendData(JSON.parse(data))
+        await getTreeFromDb()
+      }
+    }
+    
     const deleteNode = async (nodeId) => {
       const data = {
         nodeId: nodeId
       }
-      const res = await fetch(`http://localhost:3000/delete_node`,{
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/delete_node`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8'
@@ -224,6 +246,7 @@ export default {
       tableDict,
       search,
       handleFileImport,
+      handleFileExport,
       onFileChanged,
       generateInfo,
       uploader,

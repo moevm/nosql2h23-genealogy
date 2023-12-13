@@ -1,6 +1,8 @@
 import {Router} from 'express'
 import path from 'path'
 import neo4j_api from "../neo4j_api/neo4j_api.js";
+import fs from 'fs/promises';
+import { existsSync } from 'node:fs';
 const router = Router()
 
 const __dirname = path.resolve()
@@ -31,11 +33,12 @@ router.post('/delete_node',  async(req, res, next)=> {
 })
 
 router.post('/change_user_info',  async(req, res, next)=> {
-        const data = req.body;
-        let result = await neo4j_api.updateUser(data);
-        console.log("RESULT IS", result)
-        res.status(200).send(result)
-    })
+    const data = req.body;
+    let result = await neo4j_api.updateUser(data);
+    console.log("RESULT IS", result)
+    res.status(200).send(result)
+})
+
 router.get('/get_tree/:id',  async(req, res, next)=> {
     const id = req.params.id;
     let result = await neo4j_api.getTreeByUserId(id);
@@ -55,6 +58,40 @@ router.get('/get_all_id/:id',  async(req, res, next)=> {
     let result = await neo4j_api.getAllId(id);
     console.log("RESULT IS", result)
     res.status(200).send(result)
+})
+
+router.get('/ExportData/:id',  async(req, res, next)=> {
+    const id = req.params.id;
+    let filePath = path.join(__dirname, 'data', 'database.json')
+    if (!existsSync(path.join(__dirname, 'data')))
+        fs.mkdir(path.join(__dirname, 'data'))
+    let result = await neo4j_api.exportInfo(id);
+    try {
+        await fs.writeFile(filePath, JSON.stringify(result, null, 2));
+        console.log('Данные успешно записаны в файл');
+      } catch (error) {
+        console.error('Ошибка записи в файл:', error);
+      }
+    let file = await fs.readFile(filePath);
+
+    res.setHeader('Content-Disposition', 'attachment; filename="database.json"');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(file);
+})
+
+router.post('/ImportData/:id',  async(req, res, next)=> {
+    let id = req.params.id
+    let data = req.body
+    let len = data.length
+    let i= 0
+
+    for (let i=0; i<len; i++){
+        let element = data[i]
+        let result = await neo4j_api.ImportInfo(id, element[0], element[1], element[2]);
+    }
+
+
+    res.status(200).send("Database imported")
 })
 
 router.get('/get_other_trees/:id',  async(req, res, next)=> {
