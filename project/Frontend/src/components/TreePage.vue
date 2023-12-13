@@ -185,9 +185,9 @@ export default {
       window.open(`http://${store.domain}:${store.serverPort}/ExportData/${store.userId}`, 'database.pdf');
     }
 
-    const sendData = (e) =>{
+    const sendData = async (e) =>{
       console.log(e)
-      const res = fetch(`http://${store.domain}:${store.serverPort}/ImportData/${store.userId}`,{
+      const res = await fetch(`http://${store.domain}:${store.serverPort}/ImportData/${store.userId}`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8'
@@ -199,9 +199,10 @@ export default {
     const onFileChanged = (e) => {   
       let fr = new FileReader()    
       fr.readAsText(e.target.files[0])
-      fr.onload = function (e) {
+      fr.onload = async function (e) {
         let data = e.target.result
-        sendData(JSON.parse(data))
+        await sendData(JSON.parse(data))
+        await getTreeFromDb()
       }
     }
     
