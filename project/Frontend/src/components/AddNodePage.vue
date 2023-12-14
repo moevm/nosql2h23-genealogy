@@ -318,7 +318,7 @@ export default {
       const nodeSelections = []
       for(let i = 0;i< treeNodes.value.length;i++){
         const node = {
-          name: generateNPS(treeNodes.value[i]._fields[0].properties),
+          name: generateNPS(treeNodes.value[i]._fields[0].properties) + (treeNodes.value[i]._fields[1] !== null ? (" (" + treeNodes.value[i]._fields[1].type + ")") : ""),
           nodeId: treeNodes.value[i]._fields[0].elementId,
           gender: treeNodes.value[i]._fields[0].properties.gender,
         }
