@@ -52,7 +52,6 @@
     </v-row>
     <v-row>
       <v-container class="gray-background-color mt-5">
- {{selectedSearch}}
         <v-radio-group column v-model="selectedSearch">
           <v-row>
             <v-col>
