@@ -50,6 +50,46 @@
       hide-details
     />
     </v-row>
+    <v-row>
+      <v-container class="gray-background-color mt-5">
+ {{selectedSearch}}
+        <v-radio-group column v-model="selectedSearch">
+          <v-row>
+            <v-col>
+              <p>Поиск по полям узла:</p>
+            </v-col>
+            <v-col>
+              <p>Поиск по родству:</p>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="2">
+          <v-radio label="Имя" value="name"></v-radio>
+          <v-radio label="Отчество" value="patronymic"></v-radio>
+          <v-radio label="Фамилия" value="surname"></v-radio>
+            </v-col>
+            <v-col>
+          <v-radio label="Пол" value="gender"></v-radio>
+          <v-radio label="Дата рождения" value="dateOfBirth"></v-radio>
+          <v-radio label="Дата смерти" value="dateOfDeath"></v-radio>
+            </v-col>
+            <v-col cols="2">
+              <v-radio label="Сын" value="Сын"></v-radio>
+              <v-radio label="Дочь" value="Дочь"></v-radio>
+              <v-radio label="Отец" value="Отец"></v-radio>
+              <v-radio label="Мать" value="Мать"></v-radio>
+            </v-col>
+            <v-col>
+              <v-radio label="Супруга" value="Супруга"></v-radio>
+              <v-radio label="Супруг" value="Супруг"></v-radio>
+              <v-radio label="Брат" value="Брат"></v-radio>
+              <v-radio label="Сестра" value="Сестра"></v-radio>
+            </v-col>
+          </v-row>
+        </v-radio-group>
+
+      </v-container>
+    </v-row>
     <v-data-table
       v-model:items-per-page="itemsPerPage"
       :headers="headers"
@@ -90,7 +130,7 @@
 import MainNavigation from "@/components/UI/MainNavigation.vue";
 import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
-import {generateInfo} from "../../methods/informationCreator"
+import {generateDate, generateInfo} from "../../methods/informationCreator"
 import DeleteDialog from "@/components/UI/DeleteDialog.vue";
 
 export default {
@@ -110,6 +150,7 @@ export default {
     const treeInfo = ref([])
     const tableDict = ref(new Map())
     const dialog = ref(false)
+    const selectedSearch = ref("name")
     onMounted(async () => {
       await getTreeFromDb()
     })
@@ -186,7 +227,6 @@ export default {
     }
 
     const sendData = async (e) =>{
-      console.log(e)
       const res = await fetch(`http://${store.domain}:${store.serverPort}/ImportData/${store.userId}`,{
         method: 'POST',
         headers: {
@@ -196,8 +236,8 @@ export default {
       })
     }
 
-    const onFileChanged = (e) => {   
-      let fr = new FileReader()    
+    const onFileChanged = (e) => {
+      let fr = new FileReader()
       fr.readAsText(e.target.files[0])
       fr.onload = async function (e) {
         let data = e.target.result
@@ -205,7 +245,7 @@ export default {
         await getTreeFromDb()
       }
     }
-    
+
     const deleteNode = async (nodeId) => {
       const data = {
         nodeId: nodeId
@@ -225,7 +265,12 @@ export default {
       Array.from(tableDict.value.keys()).forEach(el => {
         NodeIds.push(el)
         const data = {
-          information: generateInfo(tableDict.value.get(el).information.properties),
+          name: tableDict.value.get(el).information.properties.name,
+          surname: tableDict.value.get(el).information.properties.surname,
+          patronymic: tableDict.value.get(el).information.properties.patronymic,
+          gender: tableDict.value.get(el).information.properties.gender,
+          dateOfBirth: tableDict.value.get(el).information.properties.dateOfBirth,
+          dateOfDeath: tableDict.value.get(el).information.properties.dateOfDeath,
           relationship: tableDict.value.get(el).relationship,
           nodeId: el,
           visible: false,
@@ -234,12 +279,67 @@ export default {
       })
       return tableData
     })
-
     const filteredItems = computed(() => {
+      if(["name","surname","patronymic","gender"].includes(selectedSearch.value)){
+        const filteredRes =  parseDataToTable.value.filter(item => item[selectedSearch.value].toLowerCase().includes(search.value.toLowerCase().trim()));
+        return filteredRes.map(item => { return {
+          information:generateInfo({
+          name: item.name,
+          surname: item.surname,
+          patronymic: item.patronymic,
+          gender: item.gender,
+          dateOfBirth: item.dateOfBirth,
+          dateOfDeath: item.dateOfDeath,
+        }),
+          relationship: item.relationship,
+          nodeId: item.nodeId,
+          visible: item.visible,
+        }
+        })
+      }
+      else if (["dateOfBirth","dateOfDeath"].includes(selectedSearch.value)){
+        const filteredRes =  parseDataToTable.value.filter(item => generateDate(item[selectedSearch.value]).toLowerCase().includes(search.value.toLowerCase().trim()));
+        return filteredRes.map(item => { return {
+          information:generateInfo({
+            name: item.name,
+            surname: item.surname,
+            patronymic: item.patronymic,
+            gender: item.gender,
+            dateOfBirth: item.dateOfBirth,
+            dateOfDeath: item.dateOfDeath,
+          }),
+          relationship: item.relationship,
+          nodeId: item.nodeId,
+          visible: item.visible,
+        }
+        })
+      }
+      else if(["Сын","Дочь","Отец","Мать","Супруга","Супруг","Брат","Сестра"].includes(selectedSearch.value)){
+        const filteredRes = parseDataToTable.value.filter(item => {
+          const lowerRelationship = item.relationship.map(arrItem => arrItem.toLowerCase())
+          return lowerRelationship.findIndex(lowerItem => lowerItem.includes(selectedSearch.value.toLowerCase() + ": " + search.value.toLowerCase().trim())) !== -1
+        } );
+        return filteredRes.map(item => { return {
+          information:generateInfo({
+            name: item.name,
+            surname: item.surname,
+            patronymic: item.patronymic,
+            gender: item.gender,
+            dateOfBirth: item.dateOfBirth,
+            dateOfDeath: item.dateOfDeath,
+          }),
+          relationship: item.relationship,
+          nodeId: item.nodeId,
+          visible: item.visible,
+        }
+        })
+      }
       // Фильтруем только по первому столбцу
-      return parseDataToTable.value.filter(item => item.information.toLowerCase().includes(search.value.toLowerCase()));
     })
+
+
     return {
+      selectedSearch,
       itemsPerPage,
       headers,
       selectedFile,
