@@ -198,23 +198,26 @@ import {generateNPS} from "../../methods/informationCreator";
 import {useRouter} from 'vue-router'
 
 export default {
+  props: ['values'],
   name: "addNodePage",
   components: {MainNavigation},
-  setup() {
+  setup(props) {
     const router = useRouter()
     const store = useAppStore()
     const changeFlag = ref(true)
-    const name = ref("")
-    const surname = ref("")
-    const patronymic = ref("")
-    const dateOfBirth = ref("")
-    const dateOfDeath = ref("")
-    const gender = ref("")
+    let name = ref("")
+    let surname = ref("")
+    let patronymic = ref("")
+    let dateOfBirth = ref("")
+    let dateOfDeath = ref("")
+    let gender = ref("")
     const treeNodes = ref([])
     const typeRelationships = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать', 'Сын\\Дочь']
-    const selectNameSections = ref([ref('')])
+    let selectNameSections = ref([ref('')])
     const selectTypeRelationshipSections = ref([ref('')])
     const nodeCreated = ref({})
+    const infoNode = ref(props.values)
+    const resultVariable = ref([])
     const addNodeInDB = async () => {
       const dataNode = {
         UserId: store.userId,
@@ -307,13 +310,50 @@ export default {
       router.push('/myTree')
     }
     const addSection = () => {
-      selectNameSections.value.push(ref(''))
-      selectTypeRelationshipSections.value.push(ref(''))
+      // selectNameSections.value.push(ref(''))
+      // selectTypeRelationshipSections.value.push(ref(''))
+      console.log(selectNameSections.value[0])
+      console.log(selectTypeRelationshipSections.value[0])
     }
     onMounted(async () => {
       const res = await fetch(`http://${store.domain}:${store.serverPort}/get_all_id/${store.userId}`)
       treeNodes.value = await res.json()
+      if(infoNode.value.value !==null){
+        const ves = await fetch(`http://${store.domain}:${store.serverPort}/get_user_info/${infoNode.value.value}`)
+        const info = await ves.json()
+        name.value = info.name
+        surname.value = info.surname
+        patronymic.value = info.patronymic
+        if (info.dateOfBirth) {
+          const year = info.dateOfBirth.year.low;
+          const month = info.dateOfBirth.month.low;
+          const day = info.dateOfBirth.day.low;
+          dateOfBirth.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+        if (info.dateOfDeath) {
+          const year = info.dateOfBirth.year.low;
+          const month = info.dateOfBirth.month.low;
+          const day = info.dateOfBirth.day.low;
+          dateOfDeath.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+        gender.value = info.gender
+        const ses = await fetch(`http://${store.domain}:${store.serverPort}/get_node_info/${infoNode.value.value}`)
+        const onfo = await ses.json()
+        //console.log(onfo[0]._fields[0])
+        // console.log(resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]))
+        // console.log(resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]).map(item => item.name)[0]);
+        for(let i = 0;i< onfo.length;i++){
+          if(i===0){
+            selectNameSections.value[0] = resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]).map(item => item.name)[0]
+          }else{
+            selectNameSections.value.push(ref(resultVariable.value.filter(dict => dict.nodeId === onfo[i]._fields[0]).map(item => item.name)[0]))
+            selectTypeRelationshipSections.value.push(ref(''))
+          }
+        }
+      }
     })
+
+    
     const getAllNodeSelections =  computed(() => {
       const d = {
         "SON": 'Сын',
@@ -325,6 +365,7 @@ export default {
         "BROTHER": 'Брат',
         "SISTER": 'Сестра',
       }
+
       const nodeSelections = []
       for(let i = 0;i< treeNodes.value.length;i++){
         const node = {
@@ -334,6 +375,7 @@ export default {
         }
         nodeSelections.push(node)
       }
+      resultVariable.value = nodeSelections;
       return nodeSelections
     })
     return {
@@ -351,7 +393,9 @@ export default {
       getAllNodeSelections,
       addNode,
       addRelationInDB,
-      addSection
+      addSection,
+      infoNode,
+      resultVariable,
     }
   }
 }

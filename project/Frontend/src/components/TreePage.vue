@@ -6,7 +6,7 @@
         value="addNode"
         class="green-button rounded-button"
         min-width="200px"
-        @click="$router.push('/addNode')"
+        @click="addOrChangeNode(null)"
       >
         Добавить
       </v-btn>
@@ -62,8 +62,11 @@
           <td>{{ row.item.information }}</td>
           <td>{{ row.item.relationship }}</td>
           <td v-if="row.item.nodeId !== userId">
-            <v-btn>
+            <v-btn
+            :node-id="row.item.nodeId"
+            @click="addOrChangeNode(row.item.nodeId)">
               <v-icon icon="mdi-pencil"/>
+              
             </v-btn>
             <v-btn>
               <v-icon icon="mdi-close"/>
@@ -92,6 +95,7 @@ import {computed, onMounted, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
 import DeleteDialog from "@/components/UI/DeleteDialog.vue";
+import {useRouter} from 'vue-router'
 
 export default {
   name: 'treePage',
@@ -100,6 +104,7 @@ export default {
     MainNavigation
   },
   setup() {
+    const router = useRouter()
     const xhr = new XMLHttpRequest();
     const uploader = ref(null)
     const search = ref("")
@@ -219,6 +224,17 @@ export default {
       })
       await getTreeFromDb()
     }
+
+    const addOrChangeNode = (nodeId) => {
+      const values = {
+        value: nodeId,
+      };
+      router.push({
+        name: 'addNode',
+        query: values,
+      });
+    }
+
     const parseDataToTable = computed(() => {
       const tableData = []
       const NodeIds = []
@@ -254,7 +270,8 @@ export default {
       filteredItems,
       userId,
       dialog,
-      deleteNode
+      deleteNode,
+      addOrChangeNode
     }
 
   }
