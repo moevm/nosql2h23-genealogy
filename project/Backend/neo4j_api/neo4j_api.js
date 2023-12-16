@@ -701,19 +701,20 @@ let getAvgAge = async (userId, gen) => { // получение среднего 
 let getNodeInfo = async (userId) => { // получение количества всех узлов
     let session = driver.session();
     try{
-        const res = await session.run('MATCH (n)-[r]-(m) \n'+
+        const res = await session.run('MATCH (n)<-[r]-(m) \n'+
         'WHERE elementId(n) = $userId '+
-        'RETURN DISTINCT  elementId(m)',{
+        'RETURN r',{
                 userId: userId
             }
         );
-        return res.records  //[0]._fields[0].properties
+        return res.records  
     }
     catch(err){
         console.error(err);
     }
     session.close();
 }
+
 
 export default {
     get_users,

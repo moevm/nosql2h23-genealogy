@@ -214,7 +214,7 @@ export default {
     const treeNodes = ref([])
     const typeRelationships = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать', 'Сын\\Дочь']
     let selectNameSections = ref([ref('')])
-    const selectTypeRelationshipSections = ref([ref('')])
+    let selectTypeRelationshipSections = ref([ref('')])
     const nodeCreated = ref({})
     const infoNode = ref(props.values)
     const resultVariable = ref([])
@@ -257,9 +257,22 @@ export default {
 
     }
     const  addNode = async () => {
+      if(infoNode.value.value !==null){
+        const data = {
+          nodeId: infoNode.value.value
+        }
+        const res = await fetch(`http://${store.domain}:${store.serverPort}/delete_node`,{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify(data)
+       })
+      }
       await addNodeInDB()
       for(let i = 0;i < selectNameSections.value.length;i++){
         const relationshipFrom =  selectTypeRelationshipSections.value[i].value
+        //console.log(selectTypeRelationshipSections.value[i].value)
         let typeRelationshipFrom
         let typeRelationshipTo
         const nodeGender = nodeCreated.value.properties.gender
@@ -310,10 +323,8 @@ export default {
       router.push('/myTree')
     }
     const addSection = () => {
-      // selectNameSections.value.push(ref(''))
-      // selectTypeRelationshipSections.value.push(ref(''))
-      console.log(selectNameSections.value[0])
-      console.log(selectTypeRelationshipSections.value[0])
+      selectNameSections.value.push(ref(''))
+      selectTypeRelationshipSections.value.push(ref(''))
     }
     onMounted(async () => {
       const res = await fetch(`http://${store.domain}:${store.serverPort}/get_all_id/${store.userId}`)
@@ -339,17 +350,32 @@ export default {
         gender.value = info.gender
         const ses = await fetch(`http://${store.domain}:${store.serverPort}/get_node_info/${infoNode.value.value}`)
         const onfo = await ses.json()
-        //console.log(onfo[0]._fields[0])
-        // console.log(resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]))
-        // console.log(resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]).map(item => item.name)[0]);
-        for(let i = 0;i< onfo.length;i++){
-          if(i===0){
-            selectNameSections.value[0] = resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0]).map(item => item.name)[0]
-          }else{
-            selectNameSections.value.push(ref(resultVariable.value.filter(dict => dict.nodeId === onfo[i]._fields[0]).map(item => item.name)[0]))
-            selectTypeRelationshipSections.value.push(ref(''))
-          }
+        const dict = {
+          'SON':'Сын\\Дочь',
+          'DAUGHTER':'Сын\\Дочь',
+          'HUSBAND':'Супруг\\Супруга',
+          'WIFE':'Супруг\\Супруга',
+          'BROTHER':'Брат\\Сестра',
+          'SISTER':'Брат\\Сестра',
+          'FATHER':'Отец\\Мать',
+          'MOTHER':'Отец\\Мать',
         }
+        selectNameSections.value = []
+        selectTypeRelationshipSections.value = []
+        for(let i = 0;i< onfo.length;i++){
+          let n = resultVariable.value.filter(dict => dict.nodeId === onfo[i]._fields[0].startNodeElementId)[0]
+          console.log(n.name)
+          let d = {
+            gender:n.gender,
+            name: n.name,
+            nodeId: n.nodeId
+          }
+          selectNameSections.value.push(ref(d))
+          selectTypeRelationshipSections.value.push(ref(dict[onfo[i]._fields[0].type]))
+        }
+        let n = resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0].startNodeElementId)[0]
+        console.log(selectNameSections)
+        console.log(selectTypeRelationshipSections)
       }
     })
 
