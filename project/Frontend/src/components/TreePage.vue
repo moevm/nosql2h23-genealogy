@@ -163,6 +163,12 @@ export default {
           } else {
             relationship.push(`Супруг: ${fullName}`)
           }
+        }else if (relative.type === 'BROTHER' || relative.type === 'SISTER') {
+          if (gender === 'Ж') {
+            relationship.push(`Сестра: ${fullName}`)
+          } else {
+            relationship.push(`Брат: ${fullName}`)
+          }
         }
 
       })

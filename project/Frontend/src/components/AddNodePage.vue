@@ -170,6 +170,13 @@
               :items="typeRelationships"
             />
           </v-col>
+          
+          <v-btn
+          style="margin-top: 20px;"
+          @click="deleteRelationship(index)">
+            <v-icon icon="mdi-close"/>
+            
+          </v-btn>
         </v-row>
 
         <v-row>
@@ -225,10 +232,16 @@ export default {
         surname: surname.value,
         patronymic: patronymic.value,
         dateOfBirth: `${dateOfBirth.value}`,
-        dateOfDeath: `${dateOfDeath.value}`,
+        dateOfDeath: "",
         gender: gender.value,
         generation: 1
       };
+      console.log(dateOfDeath.value)
+      if (dateOfDeath.value!==""){
+        dataNode.dateOfDeath = `${dateOfDeath.value}`
+        console.log(dataNode.dateOfDeath)
+      } 
+
       const res = await fetch(`http://${store.domain}:${store.serverPort}/create_node`, {
         method: 'POST',
         headers: {
@@ -272,7 +285,6 @@ export default {
       await addNodeInDB()
       for(let i = 0;i < selectNameSections.value.length;i++){
         const relationshipFrom =  selectTypeRelationshipSections.value[i].value
-        //console.log(selectTypeRelationshipSections.value[i].value)
         let typeRelationshipFrom
         let typeRelationshipTo
         const nodeGender = nodeCreated.value.properties.gender
@@ -364,7 +376,6 @@ export default {
         selectTypeRelationshipSections.value = []
         for(let i = 0;i< onfo.length;i++){
           let n = resultVariable.value.filter(dict => dict.nodeId === onfo[i]._fields[0].startNodeElementId)[0]
-          console.log(n.name)
           let d = {
             gender:n.gender,
             name: n.name,
@@ -374,11 +385,13 @@ export default {
           selectTypeRelationshipSections.value.push(ref(dict[onfo[i]._fields[0].type]))
         }
         let n = resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0].startNodeElementId)[0]
-        console.log(selectNameSections)
-        console.log(selectTypeRelationshipSections)
       }
     })
 
+    const deleteRelationship =(index) => {
+      selectNameSections.value.splice(index, 1);
+      selectTypeRelationshipSections.value.splice(index, 1);
+    }
     
     const getAllNodeSelections =  computed(() => {
       const d = {
@@ -404,6 +417,7 @@ export default {
       resultVariable.value = nodeSelections;
       return nodeSelections
     })
+    
     return {
       changeFlag,
       name,
@@ -422,6 +436,7 @@ export default {
       addSection,
       infoNode,
       resultVariable,
+      deleteRelationship,
     }
   }
 }

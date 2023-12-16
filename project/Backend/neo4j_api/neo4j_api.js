@@ -262,7 +262,6 @@ let createUser = async (user) => { // создаём пользователя
 let createNode = async (node)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
 
     let session = driver.session();
-      //console.log(node)
     try {
         const dateB = node.dateOfBirth.split('-')
         const dateD = node.dateOfDeath.split('-')
