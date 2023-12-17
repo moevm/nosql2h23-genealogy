@@ -39,8 +39,12 @@ const routes = [
     component: VisualizeTreePage,
   },
   {
+    // path: '/addNode',
+    // component: AddNodePage,
     path: '/addNode',
+    name: 'addNode',
     component: AddNodePage,
+    props: (route) => ({ values: route.query }), 
   }
 ]
 

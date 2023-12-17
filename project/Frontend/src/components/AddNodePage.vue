@@ -170,6 +170,13 @@
               :items="typeRelationships"
             />
           </v-col>
+
+          <v-btn
+          style="margin-top: 20px;"
+          @click="deleteRelationship(index)">
+            <v-icon icon="mdi-close"/>
+
+          </v-btn>
         </v-row>
 
         <v-row>
@@ -198,23 +205,26 @@ import {generateNPS} from "../../methods/informationCreator";
 import {useRouter} from 'vue-router'
 
 export default {
+  props: ['values'],
   name: "addNodePage",
   components: {MainNavigation},
-  setup() {
+  setup(props) {
     const router = useRouter()
     const store = useAppStore()
     const changeFlag = ref(true)
-    const name = ref("")
-    const surname = ref("")
-    const patronymic = ref("")
-    const dateOfBirth = ref("")
-    const dateOfDeath = ref("")
-    const gender = ref("")
+    let name = ref("")
+    let surname = ref("")
+    let patronymic = ref("")
+    let dateOfBirth = ref("")
+    let dateOfDeath = ref("")
+    let gender = ref("")
     const treeNodes = ref([])
     const typeRelationships = ['Супруг\\Супруга', 'Брат\\Сестра', 'Отец\\Мать', 'Сын\\Дочь']
-    const selectNameSections = ref([ref('')])
-    const selectTypeRelationshipSections = ref([ref('')])
+    let selectNameSections = ref([ref('')])
+    let selectTypeRelationshipSections = ref([ref('')])
     const nodeCreated = ref({})
+    const infoNode = ref(props.values)
+    const resultVariable = ref([])
     const addNodeInDB = async () => {
       const dataNode = {
         UserId: store.userId,
@@ -226,6 +236,12 @@ export default {
         gender: gender.value,
         generation: 1
       };
+      console.log(dateOfDeath.value)
+      if (dateOfDeath.value!==""){
+        dataNode.dateOfDeath = `${dateOfDeath.value}`
+        console.log(dataNode.dateOfDeath)
+      }
+
       const res = await fetch(`http://${store.domain}:${store.serverPort}/create_node`, {
         method: 'POST',
         headers: {
@@ -254,6 +270,18 @@ export default {
 
     }
     const  addNode = async () => {
+      if(infoNode.value.value !==null){
+        const data = {
+          nodeId: infoNode.value.value
+        }
+        const res = await fetch(`http://${store.domain}:${store.serverPort}/delete_node`,{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify(data)
+       })
+      }
       await addNodeInDB()
       for(let i = 0;i < selectNameSections.value.length;i++){
         const relationshipFrom =  selectTypeRelationshipSections.value[i].value
@@ -313,7 +341,58 @@ export default {
     onMounted(async () => {
       const res = await fetch(`http://${store.domain}:${store.serverPort}/get_all_id/${store.userId}`)
       treeNodes.value = await res.json()
+      if(infoNode.value.value !==null){
+        const ves = await fetch(`http://${store.domain}:${store.serverPort}/get_user_info/${infoNode.value.value}`)
+        const info = await ves.json()
+        name.value = info.name
+        surname.value = info.surname
+        patronymic.value = info.patronymic
+        if (info.dateOfBirth) {
+          const year = info.dateOfBirth.year.low;
+          const month = info.dateOfBirth.month.low;
+          const day = info.dateOfBirth.day.low;
+          dateOfBirth.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+        if (info.dateOfDeath) {
+          const year = info.dateOfDeath.year.low;
+          const month = info.dateOfDeath.month.low;
+          const day = info.dateOfDeath.day.low;
+          dateOfDeath.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+        gender.value = info.gender
+        const ses = await fetch(`http://${store.domain}:${store.serverPort}/get_node_info/${infoNode.value.value}`)
+        const onfo = await ses.json()
+        const dict = {
+          'SON':'Сын\\Дочь',
+          'DAUGHTER':'Сын\\Дочь',
+          'HUSBAND':'Супруг\\Супруга',
+          'WIFE':'Супруг\\Супруга',
+          'BROTHER':'Брат\\Сестра',
+          'SISTER':'Брат\\Сестра',
+          'FATHER':'Отец\\Мать',
+          'MOTHER':'Отец\\Мать',
+        }
+        selectNameSections.value = []
+        selectTypeRelationshipSections.value = []
+        for(let i = 0;i< onfo.length;i++){
+          let n = resultVariable.value.filter(dict => dict.nodeId === onfo[i]._fields[0].startNodeElementId)[0]
+          let d = {
+            gender:n.gender,
+            name: n.name,
+            nodeId: n.nodeId
+          }
+          selectNameSections.value.push(ref(d))
+          selectTypeRelationshipSections.value.push(ref(dict[onfo[i]._fields[0].type]))
+        }
+        let n = resultVariable.value.filter(dict => dict.nodeId === onfo[0]._fields[0].startNodeElementId)[0]
+      }
     })
+
+    const deleteRelationship =(index) => {
+      selectNameSections.value.splice(index, 1);
+      selectTypeRelationshipSections.value.splice(index, 1);
+    }
+
     const getAllNodeSelections =  computed(() => {
       const d = {
         "SON": 'Сын',
@@ -325,6 +404,7 @@ export default {
         "BROTHER": 'Брат',
         "SISTER": 'Сестра',
       }
+
       const nodeSelections = []
       for(let i = 0;i< treeNodes.value.length;i++){
         const node = {
@@ -334,8 +414,10 @@ export default {
         }
         nodeSelections.push(node)
       }
+      resultVariable.value = nodeSelections;
       return nodeSelections
     })
+
     return {
       changeFlag,
       name,
@@ -351,7 +433,10 @@ export default {
       getAllNodeSelections,
       addNode,
       addRelationInDB,
-      addSection
+      addSection,
+      infoNode,
+      resultVariable,
+      deleteRelationship,
     }
   }
 }

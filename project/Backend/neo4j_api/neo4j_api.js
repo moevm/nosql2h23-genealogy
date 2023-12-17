@@ -186,7 +186,7 @@ let init_db = async () => {
         '    CREATE(R)-[:MOTHER]->(N);',{})
 
     session.close();
-    console.log("RESULT:");
+  //  console.log("RESULT:");
 
     return (!firstQuery ? [] : firstQuery.records);
 }
@@ -197,8 +197,8 @@ let getUserByLogin = async (login) => { //получаем пользовате�
         login: login
     });
     session.close();
-    console.log("RESULT:");
-    console.log(res.records[0]._fields)
+  //  console.log("RESULT:");
+   // console.log(res.records[0]._fields)
     return (!res ? {} : res.records[0]._fields[0]);
 
 }
@@ -221,8 +221,8 @@ let getUserData = async (login,password) => { // получение всех с�
         password: password,
     });
     session.close();
-    console.log("RESULT:");
-    console.log(res.records)
+  //  console.log("RESULT:");
+   // console.log(res.records)
     return (!res ? [] : res.records);
 }
 
@@ -259,15 +259,15 @@ let createUser = async (user) => { // создаём пользователя
     return res;
 }
 
-let createNode = async (node)=>{//},relationships) =>{ // создать узел дерева со связями (узел - json, связи список с json в которх id и тип отношений)
+let createNode = async (node)=>{
 
     let session = driver.session();
-      //console.log(node)
     try {
+
         const dateB = node.dateOfBirth.split('-')
         const dateD = node.dateOfDeath.split('-')
         const dateOfBirthday = new neo4j.Date(+dateB[0], +dateB[1], +dateB[2])
-        const dateOfDeath = new neo4j.Date(+dateD[0], +dateD[1], +dateD[2])
+        const dateOfDeath = dateD[0] === "" ? null : new neo4j.Date(+dateD[0], +dateD[1], +dateD[2])
         node.dateOfBirth = dateOfBirthday
         node.dateOfDeath = dateOfDeath
         const response = await session.run('CREATE(node:Relative $node) RETURN node',{
@@ -698,6 +698,24 @@ let getAvgAge = async (userId, gen) => { // получение среднего 
     session.close();
 }
 
+let getNodeInfo = async (userId) => { // получение количества всех узлов
+    let session = driver.session();
+    try{
+        const res = await session.run('MATCH (n)<-[r]-(m) \n'+
+        'WHERE elementId(n) = $userId '+
+        'RETURN r',{
+                userId: userId
+            }
+        );
+        return res.records  
+    }
+    catch(err){
+        console.error(err);
+    }
+    session.close();
+}
+
+
 export default {
     get_users,
     getUserByLogin,
@@ -726,4 +744,5 @@ export default {
     getMaleAmount,
     getPairsAmount,
     getAvgAge,
+    getNodeInfo,
 }
