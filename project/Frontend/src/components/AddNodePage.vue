@@ -170,12 +170,12 @@
               :items="typeRelationships"
             />
           </v-col>
-          
+
           <v-btn
           style="margin-top: 20px;"
           @click="deleteRelationship(index)">
             <v-icon icon="mdi-close"/>
-            
+
           </v-btn>
         </v-row>
 
@@ -232,7 +232,7 @@ export default {
         surname: surname.value,
         patronymic: patronymic.value,
         dateOfBirth: `${dateOfBirth.value}`,
-        dateOfDeath: "",
+        dateOfDeath: `${dateOfDeath.value}`,
         gender: gender.value,
         generation: 1
       };
@@ -240,7 +240,7 @@ export default {
       if (dateOfDeath.value!==""){
         dataNode.dateOfDeath = `${dateOfDeath.value}`
         console.log(dataNode.dateOfDeath)
-      } 
+      }
 
       const res = await fetch(`http://${store.domain}:${store.serverPort}/create_node`, {
         method: 'POST',
@@ -354,9 +354,9 @@ export default {
           dateOfBirth.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         }
         if (info.dateOfDeath) {
-          const year = info.dateOfBirth.year.low;
-          const month = info.dateOfBirth.month.low;
-          const day = info.dateOfBirth.day.low;
+          const year = info.dateOfDeath.year.low;
+          const month = info.dateOfDeath.month.low;
+          const day = info.dateOfDeath.day.low;
           dateOfDeath.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
         }
         gender.value = info.gender
@@ -392,7 +392,7 @@ export default {
       selectNameSections.value.splice(index, 1);
       selectTypeRelationshipSections.value.splice(index, 1);
     }
-    
+
     const getAllNodeSelections =  computed(() => {
       const d = {
         "SON": 'Сын',
@@ -417,7 +417,7 @@ export default {
       resultVariable.value = nodeSelections;
       return nodeSelections
     })
-    
+
     return {
       changeFlag,
       name,
