@@ -6,6 +6,7 @@
   :nodes="nodes"
   :edges="edges"
   :configs="configs"
+  :event-handlers="click_event"
 >
   <template #edge-label="{ edge, ...slotProps }">
     <v-edge-label :text="edge.label" align="center" vertical-align="above" v-bind="slotProps" />
@@ -29,6 +30,7 @@ import * as vNG from "v-network-graph"
 import {onMounted, reactive, ref} from "vue";
 import {useAppStore} from "@/store/app";
 import {generateInfo} from "../../methods/informationCreator"
+import {useRouter} from 'vue-router'
 export default{
   name: 'visualizeTreePage',
   components: {
@@ -37,8 +39,10 @@ export default{
     MainNavigation,
   },
   setup(){
-    const treeInfo = ref(undefined)
+    const router = useRouter()
     const store = useAppStore()
+    const userId = store.userId
+    const treeInfo = ref(undefined)
     const nodes = ref({})
     const edges = ref({})
     const initialConfigs = vNG.defineConfigs({
@@ -104,6 +108,25 @@ export default{
       generateGraph()
     })
 
+    const click_event = {
+      'node:click': ({ node }) => {
+        let node_id = node.slice(4)
+        if (node_id!==userId)
+          addOrChangeNode(node_id)
+        else router.push('/profile')
+      },
+    }
+
+    const addOrChangeNode = (nodeId) => {
+      const values = {
+        value: nodeId,
+      };
+      router.push({
+        name: 'addNode',
+        query: values,
+      });
+    }
+
     const configs = reactive(initialConfigs)
     const generateGraph = () =>{
       const relationTranslate = {
@@ -147,7 +170,8 @@ export default{
     return{
       nodes,
       edges,
-      configs
+      configs,
+      click_event
     }
   }
 }
