@@ -14,3 +14,13 @@ export const generateDate = (date) => {
     (+date?.month.low < 10 ? `0${date?.month.low}.` : `${date?.month.low}.`) +
     date?.year.low
 }
+
+export const dateToObjectDate = (date) => {
+
+  if(date === ""){
+    return new Date()
+  }
+  const dateSplit = date.split('.')
+  const dateRes = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`
+  return new Date(dateRes)
+}
